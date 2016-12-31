@@ -131,6 +131,7 @@ $(document).ready(function () {
 <p>Version 2.0.0 of firstapiR is now available. I realized some useful features were missing from version 1.0.0 when I started using it for OPR calculations so I created version 2.0.0. There is a summary of changes in the <em>Getting Started Guide</em>.</p>
 <div id="version-2.0.0-links" class="section level3">
 <h3>Version 2.0.0 Links</h3>
+<p><strong>Note:</strong> The recommended method for installing version 2.0.0 of firstapiR is to install it directly from Github by typing <code>devtools::install_github(&quot;irwinsnet/firstapiR&quot;)</code> in the R console. This command will download the most current version of firstapiR.</p>
 <ul>
 <li><a href="https://www.mediafire.com/?aaqrsxcsewdxi6d">Source package</a></li>
 <li><a href="http://www.mediafire.com/file/i2p6c6cn924z9w3/firstapiR_2.0.0.zip">Windows Binary package</a></li>
@@ -143,6 +144,7 @@ $(document).ready(function () {
 <div id="version-1.0.0-links" class="section level3">
 <h3>Version 1.0.0 Links</h3>
 <p>In version 2.0.0 I eliminated the <code>expand_cols</code> argument from the <code>GetSchedule</code>, <code>GetHybridSchedule</code>, and <code>GetMatchResults</code> functions. This is the only change that impacts backwards compatibility. Version 1.0.0 is still available for anyone who still wants to use the <code>expand_cols</code> argument.</p>
+<p><strong>Note:</strong> To install version 1.0.0 of firstapiR via Github, use the command <code>devtools::install_github(&quot;irwinsnet/firstapiR&quot;, ref = &quot;v1.0.0&quot;)</code> in the R console. The readme guidance in the github repository omits the <em>ref</em> argument. Without the <em>ref</em> argument, devtools will download the most recent version of firstapiR, which is version 2.0.0. As I’m typing this, I’m realizing I could fix this issue by keeping v1.0.0 in a separate git branch instead of just tagging an earlier commit. Live and learn. I’ll fix that later.</p>
 <ul>
 <li><a href="http://www.mediafire.com/file/qxraxr41g0cin59/firstapiR_1.0.0.tar.gz">Source package</a></li>
 <li><a href="http://www.mediafire.com/file/dscl319itc7sos7/firstapiR_1.0.0.zip">Windows Binary package</a></li>
