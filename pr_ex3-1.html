@@ -11810,7 +11810,7 @@ div#notebook {
 <h2 id="2.-Markovian-State-Vector">2. Markovian State Vector<a class="anchor-link" href="#2.-Markovian-State-Vector">&#182;</a></h2><h3 id="Exercise-3-1(a)">Exercise 3-1(a)<a class="anchor-link" href="#Exercise-3-1(a)">&#182;</a></h3><blockquote><p>(a) What is the minimal state vector for the Kalman filter (so that the resulting system is Markovian)?&lt;/font&gt;</p>
 </blockquote>
 <hr>
-<h3 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h3><p><p>The state vector is a set of parameters that describes the system at time $t$. For the state vector to be Markovian, it must completely describe the system, such that the values of the state vector at times earlier than $t$ are unnecessary. In other words, knowing the values of the state vector at earlier times does improve our ability to determine future states.</p>
+<h3 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h3><p><p>The state vector is a set of parameters that describes the system at time $t$. For the state vector to be Markovian, it must completely describe the system, such that the values of the state vector at times earlier than $t$ are unnecessary. In other words, knowing the values of the state vector at earlier times does not improve our ability to determine future states.</p>
 <p><p>With a small amount of analysis, we can conclude that the state vector consists only of the position $x_t$ and the velocity $\dot x_t$. Assuming that the acceleration changes instantaneously at each time step and is constant for the duration of the step, then according to basic physics the values $x_t$ and $\dot x_t$ are related to $x_{t-1}$ and $\dot x_{t-1}$ by the following equations:</p>
 <p>$$ \tag{3} \dot x_t = \dot x_{t-1} + \ddot x_t $$</p>
 <p>$$ \tag{4} x_t = x_{t-1} + \dot x_{t-1} + \frac{\ddot x_t}{2} $$</p>
@@ -12563,10 +12563,10 @@ position and velocity after one time interval $\Delta T$.</p>
 
 
 
-<div id="8bb5f048-eda9-4247-8c7d-2c21be3d3177"></div>
+<div id="d37a2385-996b-4c6f-b8da-a004a8964237"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#8bb5f048-eda9-4247-8c7d-2c21be3d3177');
+var element = $('#d37a2385-996b-4c6f-b8da-a004a8964237');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -13421,10 +13421,10 @@ $$</p>
 
 
 
-<div id="05081904-ad29-4ed6-a9ff-7fa4bb48494b"></div>
+<div id="47828fb9-120e-459f-8d3b-a0634c559dd4"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#05081904-ad29-4ed6-a9ff-7fa4bb48494b');
+var element = $('#47828fb9-120e-459f-8d3b-a0634c559dd4');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -14587,10 +14587,10 @@ $$\left [ \left ( 0.234435562925363, \quad 1, \quad \left [ \left[\begin{matrix}
 
 
 
-<div id="f4f09311-385b-41ec-a635-07acd8dae529"></div>
+<div id="7cf54982-57dd-41ea-a2f7-6dbf91350dcb"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#f4f09311-385b-41ec-a635-07acd8dae529');
+var element = $('#7cf54982-57dd-41ea-a2f7-6dbf91350dcb');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -15447,10 +15447,10 @@ if (IPython.notebook.kernel != null) {
 
 
 
-<div id="2592c156-9186-4629-9880-753414a2b4bb"></div>
+<div id="8a3f7bcd-6cd5-4a1c-a719-214225b57bab"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#2592c156-9186-4629-9880-753414a2b4bb');
+var element = $('#8a3f7bcd-6cd5-4a1c-a719-214225b57bab');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -16413,10 +16413,10 @@ $$\left[\begin{matrix}2.5 & 2.0\\2.0 & 2\end{matrix}\right]$$
 
 
 
-<div id="f34a4abb-e15a-439d-ac4d-2fc5464606cf"></div>
+<div id="5b917b54-42ec-4ea4-b0f6-56786a52eb88"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#f34a4abb-e15a-439d-ac4d-2fc5464606cf');
+var element = $('#5b917b54-42ec-4ea4-b0f6-56786a52eb88');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -17419,10 +17419,10 @@ $$\left[\begin{matrix}0.25 & 0.5\\0.5 & 1\end{matrix}\right]$$
 
 
 
-<div id="4562fa7f-534e-447c-84be-251b44515aee"></div>
+<div id="cc559f21-9c5c-4a52-9658-edcaccaa0de7"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#4562fa7f-534e-447c-84be-251b44515aee');
+var element = $('#cc559f21-9c5c-4a52-9658-edcaccaa0de7');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -18357,10 +18357,10 @@ $$\left[\begin{matrix}8.75 & 4.5\\4.5 & 3\end{matrix}\right]$$
 
 
 
-<div id="f5abafb0-0433-40b2-a365-d3a40c61ddd9"></div>
+<div id="54f95095-ec48-4b0c-b4ad-5db154a415b5"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#f5abafb0-0433-40b2-a365-d3a40c61ddd9');
+var element = $('#54f95095-ec48-4b0c-b4ad-5db154a415b5');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -19286,10 +19286,10 @@ $$\left[\begin{matrix}21.0 & 8.0\\8.0 & 4\end{matrix}\right]$$
 
 
 
-<div id="117b8baf-d349-4185-9429-2a5ee720c439"></div>
+<div id="60dc13b8-0bc5-4fc2-8fcc-3e2738464546"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#117b8baf-d349-4185-9429-2a5ee720c439');
+var element = $('#60dc13b8-0bc5-4fc2-8fcc-3e2738464546');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
