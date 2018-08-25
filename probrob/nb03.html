@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>PR_ex_3_1</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>03 Kalman Filters Part 1</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11775,12 +11775,18 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Exploring-Kalman-Filters">Exploring Kalman Filters<a class="anchor-link" href="#Exploring-Kalman-Filters">&#182;</a></h1><h3 id="Exercise-3-1-from-Probabilistic-Robotics*">Exercise 3-1 from Probabilistic Robotics*<a class="anchor-link" href="#Exercise-3-1-from-Probabilistic-Robotics*">&#182;</a></h3><p>This notebook describes a simple Kalman filter that addresses exercises 3-1 (page 81) from <em>Probabilistic Robotics</em> by Thrun, Bergard, and Fox. In addition to analytical solutions, I've included a Monte Carlo simulation of the scenario in exercise 3-1, coded in Python. I've also included graphs and tables that compare the analytical and simulation results.</p>
-<h4 id="Notation">Notation<a class="anchor-link" href="#Notation">&#182;</a></h4><p>To enhance readability and understanding, the notation in this notebook differs slightly from the notation in <em>Probabilistic Robotics</em>. I use arrow notation to denote vectors (i.e., single-column matrices), such as $\vec x_t$. Matrices are indicated by a bold font, such as $\mathbf{A}$.</p>
-<h4 id="References">References<a class="anchor-link" href="#References">&#182;</a></h4><ul>
-<li>Several articles at <a href="http://www.visiondummy.com">http://www.visiondummy.com</a> were very helpful.</li>
-<li>LaTeX-MathJax mathmatical notation used in this notebook: <a href="http://data-blog.udacity.com/posts/2016/10/latex-primer/">http://data-blog.udacity.com/posts/2016/10/latex-primer/</a></li>
-<li>Textbook website: <a href="http://probabilistic-robotics.org/">http://probabilistic-robotics.org/</a></li>
+<h1 id="Kalman-Filters-Part-1">Kalman Filters Part 1<a class="anchor-link" href="#Kalman-Filters-Part-1">&#182;</a></h1><h2 id="State-Transitions">State Transitions<a class="anchor-link" href="#State-Transitions">&#182;</a></h2><h3 id="Exercise-3-1-from-Probabilistic-Robotics*">Exercise 3-1 from Probabilistic Robotics*<a class="anchor-link" href="#Exercise-3-1-from-Probabilistic-Robotics*">&#182;</a></h3><p>This notebook develops a Kalman filter state transition per exercise 3-1 (page 81) from <em>Probabilistic Robotics</em> by Thrun, Bergard, and Fox. In addition to analytical solutions, I've included a Monte Carlo simulation of the scenario in exercise 3-1, coded in Python. I've also included graphs and tables that compare the analytical and simulation results. The measurement update for the Kalman filter is addressed in the next notebook for exercise 3-2.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><a href="nb01.html">Back to List of PR Notebooks</a></li>
+<li><a href="http://irwinsnet.github.io">Back to Projects List</a></li>
 </ul>
 
 </div>
@@ -11864,20 +11870,21 @@ $$ \tag{9} \mathbf{R} = \left\lgroup \begin{matrix}1 &amp; \frac{1}{2} \cr \frac
 <h2 id="4.-State-Prediction-at-Times-0-Through-5">4. State Prediction at Times 0 Through 5<a class="anchor-link" href="#4.-State-Prediction-at-Times-0-Through-5">&#182;</a></h2><h3 id="Exercise-3-1(c)">Exercise 3-1(c)<a class="anchor-link" href="#Exercise-3-1(c)">&#182;</a></h3><blockquote><p>(c) Implement the state prediction step of the Kalman filter. Assuming we know at time $t = 0$, $x_0 = \dot x_0 = \ddot x_0 = 0$. Compute the state distributions for times 1, 2, ..., 5.</p>
 </blockquote>
 <hr>
-<h3 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h3><h4 id="Time-t-=-0">Time <em>t = 0</em><a class="anchor-link" href="#Time-t-=-0">&#182;</a></h4><p>Since we know the position, velocity, and acceleration at time $t = 0$, the state distribution is not a Gaussian at time $t = 0$. It's a discrete probability distribution with all probability located at a single point:</p>
+<h3 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h3><p>The robot's internal knowledge about the state of its environment is called its <em>belief</em>. Its belief following the calculation of the state transition, but before incorporating updates for external measurements, is called a <em>prediction</em>.</p>
+<h4 id="Time-t-=-0">Time <em>t = 0</em><a class="anchor-link" href="#Time-t-=-0">&#182;</a></h4><p>Since we know the position, velocity, and acceleration at time $t = 0$, the state distribution is not a Gaussian at time $t = 0$. It's a discrete probability distribution with all probability located at a single point:</p>
 <p>$$ \tag{10} 
 p(\vec x_0) = \left\lgroup \begin{matrix}1: &amp; x = 0 \: \mathsf{and} \: \dot x = 0 \cr 0: &amp; x \neq 0 \: \mathsf{or} \: \dot x \neq 0 \end{matrix} \right\rgroup $$</p>
 <p>Kalman filter algorithms represent the state at time $t$ as a mean vector $\vec \mu_t$ and a covariance matrix $\Sigma_t$. At time $t = 0$:</p>
 <p>$$ \tag{11} \vec \mu_0 = \left\lgroup \begin{matrix}0 \cr 0 \end{matrix} \right\rgroup \\
             \mathbf{\Sigma}_0 = \left\lgroup \matrix{0 &amp; 0 \cr 0 &amp; 0} \right\rgroup $$</p>
-<h4 id="Time-t-=-1">Time <em>t = 1</em><a class="anchor-link" href="#Time-t-=-1">&#182;</a></h4><p>The Kalmon filter algorithm calculates the mean vector at time $t$ from the mean vector at time $t-1$ using the following equation:</p>
-<p>$$ \tag{12} \vec \mu_t = \mathbf A_t \vec \mu_{t-1} + \mathbf B_t \vec u_t $$</p>
+<h4 id="Time-t-=-1">Time <em>t = 1</em><a class="anchor-link" href="#Time-t-=-1">&#182;</a></h4><p>The Kalmon filter algorithm calculates the mean vector at time $t$ from the mean vector at time $t-1$ using the following equation (the bar above $\mu$ indicates it is a prediction that does not incorporate a measurement at time $t$):</p>
+<p>$$ \tag{12} \bar{\vec \mu_t} = \mathbf A_t \vec \mu_{t-1} + \mathbf B_t \vec u_t $$</p>
 <p>Since $\vec u_t = 0$ for all values of $t$ and $\vec \mu_0 = 0$, we can conclude that $\mu_t$ will be equal to $0$ for all values of time $t$.</p>
 <p>Covariance at time $t$ is calculated from the covariance at time $t - 1$ per the following equation:</p>
-<p>$$ \tag{13} \mathbf{\Sigma}_t = \mathbf A_t \mathbf \Sigma_{t-1} \mathbf A_t^T + \mathbf R $$</p>
+<p>$$ \tag{13} \bar{\mathbf{\Sigma}_t} = \mathbf A_t \mathbf \Sigma_{t-1} \mathbf A_t^T + \mathbf R $$</p>
 <p>Since $\mathbf{\Sigma}_0 = 0$, then $\mathbf A_t \mathbf \Sigma_{t-1} \mathbf A_t^T = 0$ as well, which means:</p>
-<p>$$ \tag{14} \mathbf{\Sigma}_1 = \mathbf{R} = \left\lgroup \matrix{\frac{1}{4} &amp; \frac{1}{2} \cr \frac{1}{2} &amp; 1} \right\rgroup $$</p>
-<h4 id="Time-t-=-2">Time <em>t = 2</em><a class="anchor-link" href="#Time-t-=-2">&#182;</a></h4><p>$\mathbf{\Sigma}_2$:</p>
+<p>$$ \tag{14} \bar{\mathbf{\Sigma}_1} = \mathbf{R} = \left\lgroup \matrix{\frac{1}{4} &amp; \frac{1}{2} \cr \frac{1}{2} &amp; 1} \right\rgroup $$</p>
+<h4 id="Time-t-=-2">Time <em>t = 2</em><a class="anchor-link" href="#Time-t-=-2">&#182;</a></h4><p>$\bar{\mathbf{\Sigma}_2}$:</p>
 <p>Since I'm too lazy to multiply matrices by hand, we'll use Python to calculate $\mathbf{\Sigma}_2$. First, we'll create the applicable matrices in Python. The Python variables will be R for $\mathbf{R}$, A for $\mathbf{A}$, and Sigma_n for $\mathbf{\Sigma}_n$ where n = 1, 2, 3, ... .</p>
 
 </div>
@@ -12026,7 +12033,7 @@ $$\left[\begin{matrix}2.5 & 2.0\\2.0 & 2\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Time-t-=-3">Time <em>t = 3</em><a class="anchor-link" href="#Time-t-=-3">&#182;</a></h4><p>$\mathbf{\Sigma}_3$:</p>
+<h4 id="Time-t-=-3">Time <em>t = 3</em><a class="anchor-link" href="#Time-t-=-3">&#182;</a></h4><p>$\bar{\mathbf{\Sigma}_3}$:</p>
 
 </div>
 </div>
@@ -12069,7 +12076,7 @@ $$\left[\begin{matrix}8.75 & 4.5\\4.5 & 3\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Time-t-=-4">Time <em>t = 4</em><a class="anchor-link" href="#Time-t-=-4">&#182;</a></h4><p>$\mathbf{\Sigma}_4$:</p>
+<h4 id="Time-t-=-4">Time <em>t = 4</em><a class="anchor-link" href="#Time-t-=-4">&#182;</a></h4><p>$\bar{\mathbf{\Sigma}_4}$:</p>
 
 </div>
 </div>
@@ -12112,7 +12119,7 @@ $$\left[\begin{matrix}21.0 & 8.0\\8.0 & 4\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Time-t-=-5">Time <em>t = 5</em><a class="anchor-link" href="#Time-t-=-5">&#182;</a></h4><p>$\mathbf{\Sigma}_5$:</p>
+<h4 id="Time-t-=-5">Time <em>t = 5</em><a class="anchor-link" href="#Time-t-=-5">&#182;</a></h4><p>$\bar{\mathbf{\Sigma}_5}$:</p>
 
 </div>
 </div>
@@ -12563,10 +12570,10 @@ position and velocity after one time interval $\Delta T$.</p>
 
 
 
-<div id="d37a2385-996b-4c6f-b8da-a004a8964237"></div>
+<div id="a5c61b18-bcd1-449b-ba38-8a012c02beac"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#d37a2385-996b-4c6f-b8da-a004a8964237');
+var element = $('#a5c61b18-bcd1-449b-ba38-8a012c02beac');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -13421,10 +13428,10 @@ $$</p>
 
 
 
-<div id="47828fb9-120e-459f-8d3b-a0634c559dd4"></div>
+<div id="3fdc878e-8d01-48df-875f-19795e5a25b9"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#47828fb9-120e-459f-8d3b-a0634c559dd4');
+var element = $('#3fdc878e-8d01-48df-875f-19795e5a25b9');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -14587,10 +14594,10 @@ $$\left [ \left ( 0.234435562925363, \quad 1, \quad \left [ \left[\begin{matrix}
 
 
 
-<div id="7cf54982-57dd-41ea-a2f7-6dbf91350dcb"></div>
+<div id="16aaa0c0-607d-4673-b1c8-b7946356a7e8"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#7cf54982-57dd-41ea-a2f7-6dbf91350dcb');
+var element = $('#16aaa0c0-607d-4673-b1c8-b7946356a7e8');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -15447,10 +15454,10 @@ if (IPython.notebook.kernel != null) {
 
 
 
-<div id="8a3f7bcd-6cd5-4a1c-a719-214225b57bab"></div>
+<div id="efa69319-3ecb-41b8-ac96-dc7595682da1"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#8a3f7bcd-6cd5-4a1c-a719-214225b57bab');
+var element = $('#efa69319-3ecb-41b8-ac96-dc7595682da1');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -16413,10 +16420,10 @@ $$\left[\begin{matrix}2.5 & 2.0\\2.0 & 2\end{matrix}\right]$$
 
 
 
-<div id="5b917b54-42ec-4ea4-b0f6-56786a52eb88"></div>
+<div id="439835db-2a8b-43cb-ba66-e90523f3d0f1"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#5b917b54-42ec-4ea4-b0f6-56786a52eb88');
+var element = $('#439835db-2a8b-43cb-ba66-e90523f3d0f1');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -17419,10 +17426,10 @@ $$\left[\begin{matrix}0.25 & 0.5\\0.5 & 1\end{matrix}\right]$$
 
 
 
-<div id="cc559f21-9c5c-4a52-9658-edcaccaa0de7"></div>
+<div id="8b9b5f5b-27bd-430c-8cd7-2d50371af0f5"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#cc559f21-9c5c-4a52-9658-edcaccaa0de7');
+var element = $('#8b9b5f5b-27bd-430c-8cd7-2d50371af0f5');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -18357,10 +18364,10 @@ $$\left[\begin{matrix}8.75 & 4.5\\4.5 & 3\end{matrix}\right]$$
 
 
 
-<div id="54f95095-ec48-4b0c-b4ad-5db154a415b5"></div>
+<div id="eec8ef72-f37a-4d20-8cef-bf7427628dcc"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#54f95095-ec48-4b0c-b4ad-5db154a415b5');
+var element = $('#eec8ef72-f37a-4d20-8cef-bf7427628dcc');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -19286,10 +19293,10 @@ $$\left[\begin{matrix}21.0 & 8.0\\8.0 & 4\end{matrix}\right]$$
 
 
 
-<div id="60dc13b8-0bc5-4fc2-8fcc-3e2738464546"></div>
+<div id="0531c96e-3ca9-4b5d-899f-88d42c2ba52f"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#60dc13b8-0bc5-4fc2-8fcc-3e2738464546');
+var element = $('#0531c96e-3ca9-4b5d-899f-88d42c2ba52f');
 /* Put everything inside the global mpl namespace */
 window.mpl = {};
 
@@ -20297,7 +20304,20 @@ $$\left \{ 1 : 1.0, \quad 5 : 0.870388279778489, \quad 10 : 0.86710996952412, \q
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="8.-What's-Next">8. What's Next<a class="anchor-link" href="#8.-What's-Next">&#182;</a></h3><p>Exercise 3-2 from <em>Probabilistic Robotics</em> adds a measurement update to this scenario. I plan to work through that exercise in a subsequent notebook.</p>
+<ul>
+<li><a href="#Kalman-Filters-Part-1">Back to Top</a></li>
+<li><a href="nb01.html">Back to List of PR Notebooks</a></li>
+<li><a href="http://irwinsnet.github.io">Back to Projects List</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><em>Stacy Irwin, 29 July 2018</em></p>
 
 </div>
 </div>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8" />
-<title>04 Kalman Filters Part 2</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>02 Conditional Probability</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
 
 <style type="text/css">
@@ -11775,12 +11775,18 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Exploring-Kalman-Filters">Exploring Kalman Filters<a class="anchor-link" href="#Exploring-Kalman-Filters">&#182;</a></h1><h2 id="Measurement-Update">Measurement Update<a class="anchor-link" href="#Measurement-Update">&#182;</a></h2><h3 id="Exercise-3-2-from-Probabilistic-Robotics*">Exercise 3-2 from Probabilistic Robotics*<a class="anchor-link" href="#Exercise-3-2-from-Probabilistic-Robotics*">&#182;</a></h3><p>This article develops the measurement update for a simple Kalman filter per exercise 3-2 (page 81) from <em>Probabilistic Robotics</em> by Thrun, Bergard, and Fox. Exercise 3-2 is a continuation of exercise 3-1. Read the article on exercise 3-1 before reading this article.</p>
-<h4 id="Notation">Notation<a class="anchor-link" href="#Notation">&#182;</a></h4><p>To enhance readability and understanding, the notation in this notebook differs slightly from the notation in <em>Probabilistic Robotics</em>. I use arrow notation to denote vectors (i.e., single-column matrices), such as $\vec x_t$. Matrices are indicated by a bold font, such as $\mathbf{A}$.</p>
-<h4 id="References">References<a class="anchor-link" href="#References">&#182;</a></h4><ul>
-<li>Several articles at <a href="http://www.visiondummy.com">http://www.visiondummy.com</a> were very helpful.</li>
-<li>LaTeX-MathJax mathmatical notation used in this notebook: <a href="http://data-blog.udacity.com/posts/2016/10/latex-primer/">http://data-blog.udacity.com/posts/2016/10/latex-primer/</a></li>
-<li>Textbook website: <a href="http://probabilistic-robotics.org/">http://probabilistic-robotics.org/</a></li>
+<h1 id="02:-Conditional-Probability">02: Conditional Probability<a class="anchor-link" href="#02:-Conditional-Probability">&#182;</a></h1><h3 id="Exercises-from-Chapter-2-of-Probabilistic-Robotics">Exercises from Chapter 2 of <em>Probabilistic Robotics</em><a class="anchor-link" href="#Exercises-from-Chapter-2-of-Probabilistic-Robotics">&#182;</a></h3><p>This notebook addresses the conditional probability exercises in the chapter two exercises (page 36) of <em>Probabilistic Robotics</em> by Thrun, Bergard, and Fox.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li><a href="nb01.html">Back to List of PR Notebooks</a></li>
+<li><a href="http://irwinsnet.github.io">Back to Projects List</a></li>
 </ul>
 
 </div>
@@ -11790,12 +11796,12 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="1.-Scenario-Description">1. Scenario Description<a class="anchor-link" href="#1.-Scenario-Description">&#182;</a></h2><h3 id="Exercise-3-2">Exercise 3-2<a class="anchor-link" href="#Exercise-3-2">&#182;</a></h3><blockquote><ol>
-<li>We will now add measurements to our Kalman filter. Suppose at time $t$, we can receive a noisy observation of $x$. In expectation, our sensor measures the true location. However this measurement is corrupted by Gaussian noise with covariance $\sigma^2 = 10$.</li>
+<h2 id="1.-Faulty-Range-Sensor">1. Faulty Range Sensor<a class="anchor-link" href="#1.-Faulty-Range-Sensor">&#182;</a></h2><h3 id="Exercise-2-1">Exercise 2-1<a class="anchor-link" href="#Exercise-2-1">&#182;</a></h3><blockquote><ol>
+<li>A robot uses a range sensor that can measure ranges from 0<em>m</em> and 3<em>m</em>. For simplicity, assume that the actual ranges are distributed uniformly in this interval. Unfortunately, the sensor can be faulty. When the sensor is faulty, it constantly outputs a range below 1<em>m</em>, regardless of the actual range in the sensor's measurement cone. We know that the prior probability for a sensor to be faulty is $p = 0.01$.</li>
 </ol>
-</blockquote>
+<p>Suppose the robot queried it's sensor <em>N</em> times, and every single time the measurement value is below 1<em>m</em>. What is the posterior probability of a sensor fault, for $N = 1, 2, ..., 10$. Formulate the corresponding probabilistic model.</p>
 <hr>
-<h3 id="Discussion">Discussion<a class="anchor-link" href="#Discussion">&#182;</a></h3><p>Remember that $x$ refers to the position of our robot on it's axis. In this example, our measurement does not include the robot's acceleration. The phrase <em>in expectation, or sensor measures the true location</em> means the average measurement (i.e., expected value) will approach the true location as the number of measurements increase. In other words, there is no systematic bias to the measurement.</p>
+</blockquote>
 
 </div>
 </div>
@@ -11804,18 +11810,60 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="2.-Measurement-Model">2. Measurement Model<a class="anchor-link" href="#2.-Measurement-Model">&#182;</a></h2><h3 id="Exercise-3-2(a)">Exercise 3-2(a)<a class="anchor-link" href="#Exercise-3-2(a)">&#182;</a></h3><blockquote><p>(a) Define the measurement model. Hint: You need to define a matrix $\mathbf{C}$ and another matrix $\mathbf{Q}$ (c.f., Equation (3.6) and Table 3.1).</p>
-</blockquote>
-<hr>
-<p>As determined in exercise 3-1, the state vector consists of position and acceleration:</p>
-<p>$$ \tag{1} \vec x_t = \left\lgroup \begin{matrix}x_t \cr \dot x_t \end{matrix} \right\rgroup $$</p>
-<p>The measurement at time $t$ is represented by the vector $\vec z_t$. In this exercise, $\vec z_t$ has length 1 and consists only of the measured position $x$ at time $t$:</p>
-<p>$$ \tag{2} \vec z_t = \lgroup \begin{matrix} x_t \end{matrix} \rgroup $$</p>
-<p>The matrix $\mathbf{C_t}$ defines the linear transformation between $\vec z_t$ and $\vec x_t$:</p>
-<p>$$ \tag{3} \vec z_t = \mathbf{C_t} \vec x_t + \vec \delta_t$$</p>
-<p>$\mathbf{C_t}$ is the matrix that converts $\vec x_t$ to $\vec z_t$. Since $\mathbf{C_t}$ does not vary with time $t$, I will drop the $t$ subscript:</p>
-<p>$$ \tag{4} \mathbf{C} = \lgroup \begin{matrix}1 &amp; 0 \end{matrix} \rgroup $$</p>
-<p>Since the measurement vector is a scalar value, the covariance matrix simplifies to a scalar consisting of the variance $\delta^2 = 10$.</p>
+<h4 id="Solution">Solution<a class="anchor-link" href="#Solution">&#182;</a></h4><p>$ P_N = pr(\mathtt{faulty} \mid d^{&lt;1m}_N))$ is the probability that the sensor is faulty given that there have been <em>N</em> instances of a distance less than 1<em>m</em>. $p$ is the probability that the sensor is faulty.</p>
+<p>Using Bayes Rule:
+$$ P_N = \frac{pr(d^{&lt;1m}_N \mid \mathtt{faulty})p}{pr(d^{&lt;1m}_N)}$$</p>
+<p>We already know a couple values:</p>
+<p>$ pr(d^{&lt;1m}_N \mid \mathtt{faulty}) = 1$</p>
+<p>$ p = 0.01 $</p>
+<h4 id="One-Measurement">One Measurement<a class="anchor-link" href="#One-Measurement">&#182;</a></h4><p>One might be tempted to say probability of getting range &lt; 1m is 1/3 (area under uniform probability distribution between 0 and 1), but that assumes the sensor is not faulty. we should use rule of total probability:</p>
+<p>$$ pr(d^{&lt;1m}_1) = pr(d^{&lt;1m}_1 \mid \mathtt{not \, faulty}) * pr(\mathtt{not \, faulty}) +  pr(d^{&lt;1m}_1 \mid \mathtt{faulty}) * pr(\mathtt{faulty})$$</p>
+<p>$$ pr(d^{&lt;1m}_1) = 1/3 * 0.99 + 1.0 * 0.01 = 0.34 $$</p>
+<p>So, for $N=1$
+$$P_1 = \frac{1.0 \times 0.01}{0.34}$$</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">P_1</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">/</span> <span class="o">.</span><span class="mi">34</span>
+<span class="n">P_1</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+<div class="prompt output_prompt">Out[1]:</div>
+
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0.029411764705882353</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>There is a 2.9% probability that the sensor is faulty if we receive one distance measurement <em> &lt; 1</em>.</p>
 
 </div>
 </div>
@@ -11824,13 +11872,12 @@ div#notebook {
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="3.-Measurement-Update">3. Measurement Update<a class="anchor-link" href="#3.-Measurement-Update">&#182;</a></h2><h3 id="Exercise-3-2(b)">Exercise 3-2(b)<a class="anchor-link" href="#Exercise-3-2(b)">&#182;</a></h3><blockquote><p>(b) Implement the measurement update. Suppose at time $t = 5$, we observe a measurement $z = 5$. State the parameters of the Gaussian estimate before and after updating the KF. Plot the uncertainty ellipse before and after incorporating the measurement (see above [exercise 3-1] for instruction as to how to plot an uncertainty ellipse).</p>
-</blockquote>
-<hr>
-<h4 id="Kalman-Gain">Kalman Gain<a class="anchor-link" href="#Kalman-Gain">&#182;</a></h4><p>First we must calculate the Kalman gain, $\mathbf{K_t}$, which specifies to what extent the measurement will be incorporated into the estimate of position and acceleration.</p>
-<p>$$ \tag{6}
-\mathbf{K_t} = \mathbf{\overline{\Sigma}}_t \mathbf{{C_t}^T} (\mathbf{C_t} \mathbf{\overline{\Sigma}}_t \mathbf{{C_t}^T} + \mathbf{Q_t})^{-1} $$</p>
-<p>We'll use the Python sympy package to calculate the Kalman gain matrix. First, we'll create the matrices $\mathbf{Q}$, $\mathbf{C}$, and $\mathbf{\overline{\Sigma}_5}$ in Python.</p>
+<h4 id="Two-Measurements">Two Measurements<a class="anchor-link" href="#Two-Measurements">&#182;</a></h4><p>For $N = 2$ we need to calculate the total probability of receiving two measurements less than 1<em>m</em>:</p>
+<p>$$ pr(d^{&lt;1m}_2) = pr(d^{&lt;1m}_2 \mid \mathtt{not \, faulty}) * pr(\mathtt{not \, faulty}) +  pr(d^{&lt;1m}_2 \mid \mathtt{faulty}) * pr(\mathtt{faulty})$$</p>
+<p>Let's assume the robot is moving around and all distance measurements are independent:</p>
+<p>$$ pr(d^{&lt;1m}_2 \mid \mathtt{not \, faulty}) = (1/3)^2 $$</p>
+<p>$$ pr(d^{&lt;1m}_2) = (1/3)^2 * 0.99 + 1 * 0.01 $$</p>
+<p>$$ P_2 = \frac{1.0 \times 0.01}{(1/3)^2 * 0.99 + 1 * 0.01} $$</p>
 
 </div>
 </div>
@@ -11840,16 +11887,8 @@ div#notebook {
 <div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Import the Sympy Python package for symbolic mathematics</span>
-<span class="kn">import</span> <span class="nn">sympy</span>
-<span class="n">sympy</span><span class="o">.</span><span class="n">init_printing</span><span class="p">()</span>  <span class="c1"># Attractively format matrices</span>
-
-<span class="c1"># Create Q scalar</span>
-<span class="n">Q</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">10</span><span class="p">]])</span>
-
-<span class="c1"># Create matrix C</span>
-<span class="n">C</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]])</span>
-<span class="n">C</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">P_2</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">/</span> <span class="p">((</span><span class="mi">1</span><span class="o">/</span><span class="mi">3</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="n">P_2</span>
 </pre></div>
 
 </div>
@@ -11867,8 +11906,8 @@ div#notebook {
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}1 & 0\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>0.08256880733944955</pre>
 </div>
 
 </div>
@@ -11881,8 +11920,17 @@ $$\left[\begin{matrix}1 & 0\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>From exercise 3-1 we have the prediction at time $t=5$:
-$$ \tag{7} \mathbf{\overline{\Sigma}}_5 = \left\lgroup \begin{matrix} 41.25 &amp; 12.5 \cr 12.5 &amp; 5 \end{matrix} \right\rgroup $$</p>
+<p>The probability of a faulty sensor is 8.2% if we receive two measurements.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="Other-Values-of-N">Other Values of N<a class="anchor-link" href="#Other-Values-of-N">&#182;</a></h4><p>Now we can see the pattern:</p>
+<p>$$ P_n = \frac{1.0 \times 0.01}{(1/3)^n \times 0.99 + 1 \times 0.01} $$</p>
 
 </div>
 </div>
@@ -11892,9 +11940,8 @@ $$ \tag{7} \mathbf{\overline{\Sigma}}_5 = \left\lgroup \begin{matrix} 41.25 &amp
 <div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Create Sigma_5</span>
-<span class="n">Sigma_5</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mf">41.25</span><span class="p">,</span> <span class="mf">12.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">12.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">]])</span>
-<span class="n">Sigma_5</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: </span><span class="si">{:.3f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mf">0.01</span><span class="o">/</span><span class="p">(</span><span class="mf">0.33</span><span class="o">**</span><span class="n">n</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">)))</span>
 </pre></div>
 
 </div>
@@ -11907,15 +11954,22 @@ $$ \tag{7} \mathbf{\overline{\Sigma}}_5 = \left\lgroup \begin{matrix} 41.25 &amp
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[3]:</div>
+<div class="prompt"></div>
 
 
-
-
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}41.25 & 12.5\\12.5 & 5\end{matrix}\right]$$
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>1: 0.029
+2: 0.084
+3: 0.218
+4: 0.457
+5: 0.719
+6: 0.886
+7: 0.959
+8: 0.986
+9: 0.995
+10: 0.998
+</pre>
 </div>
-
 </div>
 
 </div>
@@ -11926,8 +11980,70 @@ $$\left[\begin{matrix}41.25 & 12.5\\12.5 & 5\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now we'll calculate $\mathbf{\Sigma_5}$. I'll perform the calculation in small steps to help visualize the matrix calculations.</p>
-<p>Here is the first term, $\mathbf{\overline{\Sigma}}_5 \mathbf{C}^T$:</p>
+<p>The probability that the sensor is faulty increases rapidly with an increasing number of measurements.</p>
+<p>On the other hand, if the robot and item to which distance is being measured are both stationary, then the subsequent distance measurements are not independent - we would expect to obtain the same distance measurement over and over. In this scenario:</p>
+<p>$$ pr(d^{&lt;1m}_n \mid \mathtt{not \, faulty}) = 1/3 $$</p>
+<p>The probability is independent of the number of measurements <em>n</em>. the probability that the sensor is faulty will be 2.9% regardless of the number of measurements taken.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Exercise-2-2:-Weather">Exercise 2-2: Weather<a class="anchor-link" href="#Exercise-2-2:-Weather">&#182;</a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<blockquote><p>Suppose we live in a place where days are either sunny, cloudy, or rainy. The weather transition function is a Markov chain with the following transition table:</p>
+<p><strong>Table 2-1</strong></p>
+</blockquote>
+<table>
+<thead><tr>
+<th>Today's Weather</th>
+<th>Tomorrow Sunny</th>
+<th>Tomorrow Cloudy</th>
+<th>Tomorrow Rainy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sunny</td>
+<td>0.8</td>
+<td>0.2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cloudy</td>
+<td>0.4</td>
+<td>0.4</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Rainy</td>
+<td>0.2</td>
+<td>0.6</td>
+<td>0.2</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="2-2.a:-Today-is-Sunny">2-2.a: Today is Sunny<a class="anchor-link" href="#2-2.a:-Today-is-Sunny">&#182;</a></h3><p>Suppose Day1 is sunny.</p>
+<p>What is the probability of this sequence of days: Day2 = <em>cloudy</em>, Day3 = <em>cloudy</em>, Day4 = <em>rainy</em></p>
+<p>$p = 0.2 \times 0.4 \times 0.4 \times 0.6$</p>
 
 </div>
 </div>
@@ -11937,7 +12053,8 @@ $$\left[\begin{matrix}41.25 & 12.5\\12.5 & 5\end{matrix}\right]$$
 <div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Sigma_5</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="mf">0.2</span><span class="o">*</span><span class="mf">0.4</span><span class="o">*</span><span class="mf">0.4</span><span class="o">*</span><span class="mf">0.6</span>
+<span class="s2">&quot;</span><span class="si">{:.4}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -11955,8 +12072,8 @@ $$\left[\begin{matrix}41.25 & 12.5\\12.5 & 5\end{matrix}\right]$$
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}41.25\\12.5\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;0.0192&#39;</pre>
 </div>
 
 </div>
@@ -11969,7 +12086,7 @@ $$\left[\begin{matrix}41.25\\12.5\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now for the beginning of the second term, $\mathbf{C} \mathbf{\overline{\Sigma}}_5$:</p>
+<h3 id="2-2.b:-Random-Weather-Simulator">2-2.b: Random Weather Simulator<a class="anchor-link" href="#2-2.b:-Random-Weather-Simulator">&#182;</a></h3><p>Write a simulator that can randomly generate sequences of weather from state transition function.</p>
 
 </div>
 </div>
@@ -11979,30 +12096,39 @@ $$\left[\begin{matrix}41.25\\12.5\end{matrix}\right]$$
 <div class="prompt input_prompt">In&nbsp;[5]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">C</span> <span class="o">*</span> <span class="n">Sigma_5</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">random</span>
+
+<span class="k">def</span> <span class="nf">weather</span><span class="p">(</span><span class="n">day1</span><span class="o">=</span><span class="s2">&quot;sunny&quot;</span><span class="p">,</span> <span class="n">num_days</span><span class="o">=</span><span class="mi">1000000</span><span class="p">):</span>
+    <span class="n">today</span> <span class="o">=</span> <span class="n">day1</span>
+    <span class="n">tomorrow</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">sunny</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">cloudy</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">rainy</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total_days</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="n">prob</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sunny&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span> <span class="s2">&quot;cloudy&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">],</span> <span class="s2">&quot;rainy&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">]}</span>
+    
+    <span class="k">for</span> <span class="n">day</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_days</span><span class="p">):</span>
+        <span class="n">rnd</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rnd</span> <span class="o">&lt;=</span> <span class="n">prob</span><span class="p">[</span><span class="n">today</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">tomorrow</span> <span class="o">=</span> <span class="s2">&quot;sunny&quot;</span>
+            <span class="n">sunny</span> <span class="o">=</span> <span class="n">sunny</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">rnd</span> <span class="o">&lt;=</span> <span class="n">prob</span><span class="p">[</span><span class="n">today</span><span class="p">][</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">tomorrow</span> <span class="o">=</span> <span class="s2">&quot;cloudy&quot;</span>
+            <span class="n">cloudy</span> <span class="o">=</span> <span class="n">cloudy</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tomorrow</span> <span class="o">=</span> <span class="s2">&quot;rainy&quot;</span>
+            <span class="n">rainy</span> <span class="o">=</span> <span class="n">rainy</span> <span class="o">+</span> <span class="mi">1</span>
+            
+        <span class="n">total_days</span> <span class="o">=</span> <span class="n">total_days</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">today</span> <span class="o">=</span> <span class="n">tomorrow</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Probability Sunny: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sunny</span><span class="o">/</span><span class="n">total_days</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Probability Cloudy: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cloudy</span><span class="o">/</span><span class="n">total_days</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Probability Rainy: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rainy</span><span class="o">/</span><span class="n">total_days</span><span class="p">))</span>
 </pre></div>
 
 </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[5]:</div>
-
-
-
-
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}41.25 & 12.5\end{matrix}\right]$$
-</div>
-
-</div>
-
 </div>
 </div>
 
@@ -12011,7 +12137,7 @@ $$\left[\begin{matrix}41.25 & 12.5\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>$\mathbf{C} \mathbf{\overline{\Sigma}}_5 \mathbf{C}^T$:</p>
+<h3 id="2-2.c:-Stationary-Distribution-from-Simulation">2-2.c: Stationary Distribution from Simulation<a class="anchor-link" href="#2-2.c:-Stationary-Distribution-from-Simulation">&#182;</a></h3><p>Use the simulator to determine the stationary distribution of the Markov chain -- the probability that any given day will be sunny, cloudy, or rainy.</p>
 
 </div>
 </div>
@@ -12021,7 +12147,7 @@ $$\left[\begin{matrix}41.25 & 12.5\end{matrix}\right]$$
 <div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">C</span> <span class="o">*</span> <span class="n">Sigma_5</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">weather</span><span class="p">()</span>
 </pre></div>
 
 </div>
@@ -12034,36 +12160,27 @@ $$\left[\begin{matrix}41.25 & 12.5\end{matrix}\right]$$
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[6]:</div>
+<div class="prompt"></div>
 
 
-
-
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}41.25\end{matrix}\right]$$
-</div>
-
-</div>
-
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Probability Sunny: 0.641754
+Probability Cloudy: 0.28673
+Probability Rainy: 0.071516
+</pre>
 </div>
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>$\mathbf{C} \mathbf{\overline{\Sigma}}_5 \mathbf{C}^T + \mathbf{Q} $:</p>
 
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">C</span> <span class="o">*</span> <span class="n">Sigma_5</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">Q</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">weather</span><span class="p">(</span><span class="n">day1</span><span class="o">=</span><span class="s2">&quot;cloudy&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12076,36 +12193,27 @@ $$\left[\begin{matrix}41.25\end{matrix}\right]$$
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[7]:</div>
+<div class="prompt"></div>
 
 
-
-
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}51.25\end{matrix}\right]$$
-</div>
-
-</div>
-
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Probability Sunny: 0.643712
+Probability Cloudy: 0.285153
+Probability Rainy: 0.071135
+</pre>
 </div>
 </div>
 
 </div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Now take the inverse, $(\mathbf{C} \mathbf{\overline{\Sigma}}_5 \mathbf{C}^T + \mathbf{Q})^{-1} $:</p>
 
-</div>
-</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[8]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="n">Sigma_5</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">Q</span><span class="p">)</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">weather</span><span class="p">(</span><span class="n">day1</span><span class="o">=</span><span class="s2">&quot;rainy&quot;</span><span class="p">)</span>
 </pre></div>
 
 </div>
@@ -12118,15 +12226,15 @@ $$\left[\begin{matrix}51.25\end{matrix}\right]$$
 
 <div class="output_area">
 
-<div class="prompt output_prompt">Out[8]:</div>
+<div class="prompt"></div>
 
 
-
-
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}0.0195121951219512\end{matrix}\right]$$
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Probability Sunny: 0.643601
+Probability Cloudy: 0.285086
+Probability Rainy: 0.071313
+</pre>
 </div>
-
 </div>
 
 </div>
@@ -12137,7 +12245,51 @@ $$\left[\begin{matrix}0.0195121951219512\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Put it all together: $\mathbf{K_5} = \mathbf{\overline{\Sigma}}_5 \mathbf{{C}^T} (\mathbf{C} \mathbf{\overline{\Sigma}}_5 \mathbf{{C}^T} + \mathbf{Q})^{-1}$</p>
+<h3 id="2-2.d:-Stationary-Distribution-from-Closed-Form-Calculation">2-2.d: Stationary Distribution from Closed Form Calculation<a class="anchor-link" href="#2-2.d:-Stationary-Distribution-from-Closed-Form-Calculation">&#182;</a></h3><p>Calculate the stationary probability distribution using a closed form solution.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Using the total probability theorem:</strong></p>
+<p>$$\tag{2-1} p(x) = \sum_{y}p(x \mid y)p(y)$$</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><p>$p(s) = $ probability sunny</p>
+<p><p>$p(c) = $ probability cloudy</p>
+<p><p>$p(r) = $ probability rainy</p>
+<p>$$ p(s) = p(s \mid s)p(s) + p(s \mid c)p(c) + p(s \mid r)p(r) $$
+$$ p(c) = p(c \mid s)p(s) + p(c \mid c)p(c) + p(c \mid r)p(r) $$
+$$ p(r) = p(r \mid s)p(s) + p(r \mid c)p(c) + p(r \mid r)p(r) $$</p>
+<p>And from the definition of probability: $ p(s) + p(c) + p(r) = 1 $</p>
+<p>Substituting values from the weather transition function:</p>
+<p>$$ p(s) = 0.8p(s) + 0.4p(c) + 0.2p(r) $$
+$$ p(c) = 0.2p(s) + 0.4p(c) + 0.6p(r) $$
+$$ p(r) =   0p(s) + 0.2p(c) + 0.2p(r) $$</p>
+<p>Collecting like terms:</p>
+<p>$$ -0.2p(s) + 0.4p(c) + 0.2p(r) = 0 $$
+$$  0.2p(s) - 0.6p(c) + 0.6p(r) = 0 $$
+$$    0p(s) + 0.2p(c) - 0.8p(r) = 0 $$</p>
+<p>Probabilities must sum to 1:</p>
+<p>$$ p(s) + p(c) + p(r) = 1 $$</p>
+<p>Using only two of the total probability equations (the third equation is a linear combination of the first two) and the fact that the probabilities sum to 1, we get a set of 3 equations with three unknowns that are represented by the following matrix:</p>
+<p>$$
+\begin{bmatrix}
+-0.2 &amp;  0.4 &amp; 0.2 &amp; 0\\
+ 0.2 &amp; -0.6 &amp; 0.6 &amp; 0\\
+   1 &amp;    1 &amp;   1 &amp; 1\\
+\end{bmatrix}
+$$</p>
+<p>We'll use the Python sympy package to solve for $p(s)$, $p(c)$, and $p(r)$.</p>
 
 </div>
 </div>
@@ -12147,8 +12299,17 @@ $$\left[\begin{matrix}0.0195121951219512\end{matrix}\right]$$
 <div class="prompt input_prompt">In&nbsp;[9]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">K5</span> <span class="o">=</span> <span class="n">Sigma_5</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="n">Sigma_5</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">Q</span><span class="p">)</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span>
-<span class="n">K5</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sympy</span>
+
+<span class="n">aug</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.8</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="p">])</span>
+
+<span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">symbols</span><span class="p">(</span><span class="s1">&#39;s, c, r&#39;</span><span class="p">)</span>
+<span class="n">stationary</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">linsolve</span><span class="p">(</span><span class="n">aug</span><span class="p">,</span> <span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">r</span><span class="p">])</span>
+<span class="n">stationary</span>
 </pre></div>
 
 </div>
@@ -12166,8 +12327,8 @@ $$\left[\begin{matrix}0.0195121951219512\end{matrix}\right]$$
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}0.804878048780488\\0.24390243902439\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>{(0.642857142857143, 0.285714285714286, 0.0714285714285714)}</pre>
 </div>
 
 </div>
@@ -12180,55 +12341,30 @@ $$\left[\begin{matrix}0.804878048780488\\0.24390243902439\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Updating-the-Mean">Updating the Mean<a class="anchor-link" href="#Updating-the-Mean">&#182;</a></h4><p>The mean is updated using the following formula:</p>
-<p>$$ \tag{8} \vec \mu_t = \overline{\vec \mu}_t + \mathbf{K}_t (\vec z_t - \mathbf{C}_t \overline{\vec \mu}_t) $$</p>
-<p>$\overline{\vec \mu}_t$ is the robot's estimated state at time $t$, prior to taking a measurement. We are given $z_t$ = 5. Per the results of exercise 3-2:</p>
-<p>$$ \tag{9} \overline{\vec \mu}_5 = \left\lgroup \begin{matrix} 0 \cr 0 \end{matrix} \right\rgroup $$</p>
+<h3 id="2-2.e:-Entropy">2-2.e: Entropy<a class="anchor-link" href="#2-2.e:-Entropy">&#182;</a></h3><p>Calculate the entropy of the stationary distribution.</p>
 
 </div>
 </div>
 </div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[10]:</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
 <div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_5</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">5</span><span class="p">]])</span>
-<span class="n">mubar_5</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-<span class="n">mubar_5</span>
-</pre></div>
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>$$ H_p(x) = -\sum_x p(x) \, log_2 \, p(x) $$</p>
+<p>$$ H_p(x) = 0.6429 \times log_2(0.6429) + 0.2857 \times log_2(0.2857 + 0.0714 \times log_2(0.0714) $$</p>
 
 </div>
 </div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[10]:</div>
-
-
-
-
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}0\\0\end{matrix}\right]$$
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">z_5</span> <span class="o">+</span> <span class="n">C</span> <span class="o">*</span> <span class="n">mubar_5</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">log</span>
+<span class="n">probs</span> <span class="o">=</span> <span class="n">stationary</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">H</span> <span class="o">=</span> <span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">log</span><span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">probs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">log</span><span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">probs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="n">log</span><span class="p">(</span><span class="n">probs</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
+<span class="n">H</span>
 </pre></div>
 
 </div>
@@ -12246,8 +12382,8 @@ $$\left[\begin{matrix}0\\0\end{matrix}\right]$$
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}5\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>1.19811742113040</pre>
 </div>
 
 </div>
@@ -12255,46 +12391,69 @@ $$\left[\begin{matrix}5\end{matrix}\right]$$
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="2-2.f:-Yesterday's-Weather">2-2.f: Yesterday's Weather<a class="anchor-link" href="#2-2.f:-Yesterday's-Weather">&#182;</a></h3><p>Calculate the probability of yesterday's weather given today's weather.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Bayes rule: $$ p(x \mid y) = \frac{p(y \mid x) \, p(x)}{p(y)} $$</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>$ p(s_t) = $ probability that today is sunny</p>
+<p>$ p(s_y) = $ probability that yesterday was sunny</p>
+<p>$ p(c_t) = $ probability that today is cloudy</p>
+<p>$ p(c_y) = $ probability that yesterday was cloudy</p>
+<p>$ p(r_t) = $ probability that today is rainy</p>
+<p>$ p(r_y) = $ probability that yesterday was rainy</p>
+<p>Note that $ p(s_t) = p(s_y) = p(s) = $ stationary probability that any particular day is sunny.</p>
+<p>Note that $ p(c_t) = p(c_y) = p(c) = $ stationary probability that any particular day is cloudy.</p>
+<p>Note that $ p(r_t) = p(r_y) = p(r) = $ stationary probability that any particular day is rainy.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">mu_5</span> <span class="o">=</span> <span class="n">mubar_5</span> <span class="o">+</span> <span class="n">K5</span> <span class="o">*</span> <span class="p">(</span><span class="n">z_5</span> <span class="o">+</span> <span class="n">C</span> <span class="o">*</span> <span class="n">mubar_5</span><span class="p">)</span>
-<span class="n">mu_5</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Stationary probabilities</span>
+<span class="n">p_sun</span> <span class="o">=</span> <span class="n">probs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">p_cld</span> <span class="o">=</span> <span class="n">probs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">p_rny</span> <span class="o">=</span> <span class="n">probs</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 </pre></div>
 
 </div>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[12]:</div>
-
-
-
-
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}4.02439024390244\\1.21951219512195\end{matrix}\right]$$
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The Kalman filter has decided that the robot is probably a bit closer to the center of the track than 5, the result of our measurement. Also note that the filter has picked a non-zero value of acceleration, even though no estimate of acceleration was provided by the measurement.</p>
+<p>For today and yesterday being sunny:
+$$ p(s_y \vert s_t) = \frac{p(s_t \vert s_y) p(s_y)}{p(s_t)} $$
+$$ p(s_y) = p(s_t) $$
+$$ p(s_y \vert  s_t) = p(s_t \vert s_y) = 0.8 $$</p>
+<p>Similarly for today and yesterday both being cloudy or rainy
+$$ p(c_y \vert c_t) = p(c_t \vert c_y) = 0.4 $$
+$$ p(r_y \vert r_t) = p(r_t \vert r_y) = 0.2 $$</p>
 
 </div>
 </div>
@@ -12303,9 +12462,8 @@ $$\left[\begin{matrix}4.02439024390244\\1.21951219512195\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Updating-the-Covariance-Matrix">Updating the Covariance Matrix<a class="anchor-link" href="#Updating-the-Covariance-Matrix">&#182;</a></h4><p>The updated covariance matrix is provided by the formula:</p>
-<p>$$ \tag{10} \mathbf{\Sigma}_t = (\mathbf{I} - \mathbf{K}_t \mathbf{C}) \mathbf{\overline\Sigma}_t $$</p>
-<p>$\mathbf{I}$ is the identity matrix, for which all diagonal elements are equal to 1 and all other elements are equal to 0.</p>
+<p>Yesterday sunny, today cloudy:
+$$ p(s_y \vert c_t) = \frac{p(c_t \vert s_y)p(s_y)}{p(c_t)} $$</p>
 
 </div>
 </div>
@@ -12315,7 +12473,8 @@ $$\left[\begin{matrix}4.02439024390244\\1.21951219512195\end{matrix}\right]$$
 <div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">K5</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sun_yest_cld_today</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">p_sun</span> <span class="o">/</span> <span class="n">p_cld</span>
+<span class="n">sun_yest_cld_today</span>
 </pre></div>
 
 </div>
@@ -12333,8 +12492,8 @@ $$\left[\begin{matrix}4.02439024390244\\1.21951219512195\end{matrix}\right]$$
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}0.804878048780488\\0.24390243902439\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>0.450000000000000</pre>
 </div>
 
 </div>
@@ -12342,13 +12501,24 @@ $$\left[\begin{matrix}0.804878048780488\\0.24390243902439\end{matrix}\right]$$
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Yesterday sunny, today rainy:
+$$ p(s_y \vert r_t) = \frac{p(r_t \vert s_y)p(s_y)}{p(r_t)} $$</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[14]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">C</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sun_yest_rny_today</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">*</span> <span class="n">p_sun</span> <span class="o">/</span> <span class="n">p_rny</span>
+<span class="n">sun_yest_rny_today</span>
 </pre></div>
 
 </div>
@@ -12366,8 +12536,8 @@ $$\left[\begin{matrix}0.804878048780488\\0.24390243902439\end{matrix}\right]$$
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}1 & 0\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>0</pre>
 </div>
 
 </div>
@@ -12375,13 +12545,24 @@ $$\left[\begin{matrix}1 & 0\end{matrix}\right]$$
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Yesterday cloudy, today sunny:
+$$ p(c_y \vert s_t) = \frac{p(s_t \vert c_y)p(c_y)}{p(s_t)} $$</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[15]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">K5</span> <span class="o">*</span> <span class="n">C</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cld_yest_sun_today</span> <span class="o">=</span> <span class="mf">0.4</span> <span class="o">*</span> <span class="n">p_cld</span> <span class="o">/</span> <span class="n">p_sun</span>
+<span class="n">cld_yest_sun_today</span>
 </pre></div>
 
 </div>
@@ -12399,8 +12580,8 @@ $$\left[\begin{matrix}1 & 0\end{matrix}\right]$$
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}0.804878048780488 & 0\\0.24390243902439 & 0\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>0.177777777777778</pre>
 </div>
 
 </div>
@@ -12408,14 +12589,24 @@ $$\left[\begin{matrix}0.804878048780488 & 0\\0.24390243902439 & 0\end{matrix}\ri
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Yesterday cloudy, today rainy:
+$$ p(c_y \vert r_t) = \frac{p(r_t \vert c_y)p(c_y)}{p(r_t)} $$</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[16]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">I</span> <span class="o">=</span> <span class="n">sympy</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
-<span class="n">I</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">cld_yest_rny_today</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">p_cld</span> <span class="o">/</span> <span class="n">p_rny</span>
+<span class="n">cld_yest_rny_today</span>
 </pre></div>
 
 </div>
@@ -12433,8 +12624,8 @@ $$\left[\begin{matrix}0.804878048780488 & 0\\0.24390243902439 & 0\end{matrix}\ri
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}1 & 0\\0 & 1\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>0.800000000000000</pre>
 </div>
 
 </div>
@@ -12442,13 +12633,24 @@ $$\left[\begin{matrix}1 & 0\\0 & 1\end{matrix}\right]$$
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Yesterday rainy, today sunny:
+$$ p(r_y \vert s_t) = \frac{p(s_t \vert r_y)p(r_y)}{p(s_t)} $$</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
 <div class="prompt input_prompt">In&nbsp;[17]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">I</span> <span class="o">-</span> <span class="n">K5</span> <span class="o">*</span> <span class="n">C</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rny_yest_sun_today</span> <span class="o">=</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">p_rny</span> <span class="o">/</span> <span class="n">p_sun</span>
+<span class="n">rny_yest_sun_today</span>
 </pre></div>
 
 </div>
@@ -12466,8 +12668,8 @@ $$\left[\begin{matrix}1 & 0\\0 & 1\end{matrix}\right]$$
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}0.195121951219512 & 0\\-0.24390243902439 & 1\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>0.0222222222222222</pre>
 </div>
 
 </div>
@@ -12480,7 +12682,8 @@ $$\left[\begin{matrix}0.195121951219512 & 0\\-0.24390243902439 & 1\end{matrix}\r
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Finally, the updated covariance matrix:</p>
+<p>Yesterday rainy, today cloudy:
+$$ p(r_y \vert c_t) = \frac{p(c_t \vert r_y)p(r_y)}{p(c_t)} $$</p>
 
 </div>
 </div>
@@ -12490,8 +12693,8 @@ $$\left[\begin{matrix}0.195121951219512 & 0\\-0.24390243902439 & 1\end{matrix}\r
 <div class="prompt input_prompt">In&nbsp;[18]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sigma_5p</span> <span class="o">=</span> <span class="p">(</span><span class="n">I</span> <span class="o">-</span> <span class="n">K5</span> <span class="o">*</span> <span class="n">C</span><span class="p">)</span> <span class="o">*</span> <span class="n">Sigma_5</span>
-<span class="n">sigma_5p</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">rny_yest_cld_today</span> <span class="o">=</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="n">p_rny</span> <span class="o">/</span> <span class="n">p_cld</span>
+<span class="n">rny_yest_cld_today</span>
 </pre></div>
 
 </div>
@@ -12509,8 +12712,8 @@ $$\left[\begin{matrix}0.195121951219512 & 0\\-0.24390243902439 & 1\end{matrix}\r
 
 
 
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}8.04878048780488 & 2.4390243902439\\2.4390243902439 & 1.95121951219512\end{matrix}\right]$$
+<div class="output_text output_subarea output_execute_result">
+<pre>0.150000000000000</pre>
 </div>
 
 </div>
@@ -12523,49 +12726,36 @@ $$\left[\begin{matrix}8.04878048780488 & 2.4390243902439\\2.4390243902439 & 1.95
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's compare the updated covariance matrix to the matrix before the measurement:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[19]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">Sigma_5</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt output_prompt">Out[19]:</div>
-
-
-
-
-<div class="output_latex output_subarea output_execute_result">
-$$\left[\begin{matrix}41.25 & 12.5\\12.5 & 5\end{matrix}\right]$$
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>All variances and covariances have dropped significantly, meaning we have much less uncertainty in our position and acceleration after the measurement.</p>
+<p><strong>Final Results</strong></p>
+<table>
+<thead><tr>
+<th>Today's Weather</th>
+<th>Yesterday Sunny</th>
+<th>Yesterday Cloudy</th>
+<th>Yesterday Rainy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>  Sunny</td>
+<td>0.8</td>
+<td>0.1778 (8/45)</td>
+<td>0.0222 (2/9)</td>
+</tr>
+<tr>
+<td>  Cloudy</td>
+<td>0.45</td>
+<td>0.4</td>
+<td>0.15</td>
+</tr>
+<tr>
+<td>  Rainy</td>
+<td>0</td>
+<td>0.8</td>
+<td>0.2</td>
+</tr>
+</tbody>
+</table>
 
 </div>
 </div>
@@ -12574,905 +12764,30 @@ $$\left[\begin{matrix}41.25 & 12.5\\12.5 & 5\end{matrix}\right]$$
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Plotting-the-95%-Uncertainty-Ellipse">Plotting the 95% Uncertainty Ellipse<a class="anchor-link" href="#Plotting-the-95%-Uncertainty-Ellipse">&#182;</a></h4><p>We'll use the following Python functions to plot the ellipse:</p>
+<h3 id="2-2.g:-Seasons">2-2.g: Seasons<a class="anchor-link" href="#2-2.g:-Seasons">&#182;</a></h3><p>Add seasons to model. State transition function above would apply only to Summer. Other transition functions would apply to Winter, Spring, and Fall. Would this violate the Markov property of this process?</p>
+<p>As long as we added the current date as a state variable and formulated the trnasition function such that the season and correct transitition probabilities could be selected using the date and today's weather, the Markov property would not be violated. But if the set of state variables does not incldue the date, then the Markov property is violated.</p>
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[20]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
-<span class="kn">import</span> <span class="nn">matplotlib</span>
-<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;nbAgg&#39;</span><span class="p">)</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="k">as</span> <span class="nn">mpatches</span>
-<span class="kn">import</span> <span class="nn">matplotlib.lines</span> <span class="k">as</span> <span class="nn">lines</span>
-<span class="c1"># import numpy as np</span>
-
-<span class="k">def</span> <span class="nf">get_eigen_data</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Extracts eigenvalues and eigenvectors from covariance matrix.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">eigenvects</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">eigenvects</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">eigenvects</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">eigenvects</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]:</span>
-        <span class="n">idx_max</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">idx_min</span> <span class="o">=</span> <span class="mi">1</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">idx_max</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="n">idx_min</span> <span class="o">=</span> <span class="mi">0</span>
-        
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;eigvec_major&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">eigenvects</span><span class="p">[</span><span class="n">idx_max</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
-            <span class="s2">&quot;eigvec_minor&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">eigenvects</span><span class="p">[</span><span class="n">idx_min</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]),</span>
-            <span class="s2">&quot;eigval_major&quot;</span><span class="p">:</span> <span class="n">eigenvects</span><span class="p">[</span><span class="n">idx_max</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-            <span class="s2">&quot;eigval_minor&quot;</span><span class="p">:</span> <span class="n">eigenvects</span><span class="p">[</span><span class="n">idx_min</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-            <span class="s2">&quot;theta_major&quot;</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">atan</span><span class="p">(</span><span class="n">eigenvects</span><span class="p">[</span><span class="n">idx_max</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span>
-                               <span class="n">eigenvects</span><span class="p">[</span><span class="n">idx_max</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
-            <span class="s2">&quot;theta_minor&quot;</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">atan</span><span class="p">(</span><span class="n">eigenvects</span><span class="p">[</span><span class="n">idx_min</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">/</span>
-                               <span class="n">eigenvects</span><span class="p">[</span><span class="n">idx_min</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mi">180</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
-           <span class="p">}</span>
-
-
-<span class="k">def</span> <span class="nf">plot_ellipse</span><span class="p">(</span><span class="n">mu_pre</span><span class="p">,</span> <span class="n">cov_pre</span><span class="p">,</span> <span class="n">mu_post</span><span class="p">,</span> <span class="n">cov_post</span><span class="p">):</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    
-    <span class="c1"># Setup plot</span>
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
-  
-    <span class="c1"># Set plot size</span>
-    <span class="n">hor_cov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov_pre</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">ver_cov</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cov_pre</span><span class="o">.</span><span class="n">row</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">scale</span> <span class="o">=</span> <span class="mi">3</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="n">hor_cov</span><span class="o">*</span><span class="n">scale</span><span class="p">,</span> <span class="n">hor_cov</span><span class="o">*</span><span class="n">scale</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="o">-</span><span class="n">ver_cov</span><span class="o">*</span><span class="n">scale</span><span class="p">,</span> <span class="n">ver_cov</span><span class="o">*</span><span class="n">scale</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">,</span> <span class="n">adjustable</span><span class="o">=</span><span class="s1">&#39;datalim&#39;</span><span class="p">)</span>
-    
-    <span class="c1"># Add pre-measurement ellipse</span>
-    <span class="n">eig_pre</span> <span class="o">=</span> <span class="n">get_eigen_data</span><span class="p">(</span><span class="n">cov_pre</span><span class="p">)</span>
-    <span class="n">ell_pre</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Ellipse</span><span class="p">((</span><span class="n">mu_pre</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mu_pre</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                               <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eig_pre</span><span class="p">[</span><span class="s2">&quot;eigval_major&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">5.992</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
-                               <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eig_pre</span><span class="p">[</span><span class="s2">&quot;eigval_minor&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">5.992</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
-                               <span class="n">eig_pre</span><span class="p">[</span><span class="s2">&quot;theta_major&quot;</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                               <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Add posterior ellipse</span>
-    <span class="n">eig_post</span> <span class="o">=</span> <span class="n">get_eigen_data</span><span class="p">(</span><span class="n">cov_post</span><span class="p">)</span>
-    <span class="n">ell_post</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Ellipse</span><span class="p">((</span><span class="n">mu_post</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mu_post</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-                                <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eig_post</span><span class="p">[</span><span class="s2">&quot;eigval_major&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">5.992</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
-                                <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">eig_post</span><span class="p">[</span><span class="s2">&quot;eigval_minor&quot;</span><span class="p">]</span><span class="o">*</span><span class="mf">5.992</span><span class="p">)</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span>
-                                <span class="n">eig_post</span><span class="p">[</span><span class="s2">&quot;theta_major&quot;</span><span class="p">],</span> <span class="n">fill</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                                <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">ell_pre</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">ell_post</span><span class="p">)</span>
-    
-    <span class="c1"># Add labels and title</span>
-    <span class="n">title</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Robot Position at Time t = 5</span><span class="se">\n</span><span class="s2">Pre and Post Measurement&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Position&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Velocity&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    
-<span class="n">plot_ellipse</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">Sigma_5</span><span class="p">,</span> <span class="n">mu_5</span><span class="p">,</span> <span class="n">sigma_5p</span><span class="p">)</span>
-</pre></div>
-
-</div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-
-
-<div id="91e9ed04-4708-4254-93ed-1b5cb1c4917c"></div>
-<div class="output_subarea output_javascript ">
-<script type="text/javascript">
-var element = $('#91e9ed04-4708-4254-93ed-1b5cb1c4917c');
-/* Put everything inside the global mpl namespace */
-window.mpl = {};
-
-
-mpl.get_websocket_type = function() {
-    if (typeof(WebSocket) !== 'undefined') {
-        return WebSocket;
-    } else if (typeof(MozWebSocket) !== 'undefined') {
-        return MozWebSocket;
-    } else {
-        alert('Your browser does not have WebSocket support.' +
-              'Please try Chrome, Safari or Firefox ≥ 6. ' +
-              'Firefox 4 and 5 are also supported but you ' +
-              'have to enable WebSockets in about:config.');
-    };
-}
-
-mpl.figure = function(figure_id, websocket, ondownload, parent_element) {
-    this.id = figure_id;
-
-    this.ws = websocket;
-
-    this.supports_binary = (this.ws.binaryType != undefined);
-
-    if (!this.supports_binary) {
-        var warnings = document.getElementById("mpl-warnings");
-        if (warnings) {
-            warnings.style.display = 'block';
-            warnings.textContent = (
-                "This browser does not support binary websocket messages. " +
-                    "Performance may be slow.");
-        }
-    }
-
-    this.imageObj = new Image();
-
-    this.context = undefined;
-    this.message = undefined;
-    this.canvas = undefined;
-    this.rubberband_canvas = undefined;
-    this.rubberband_context = undefined;
-    this.format_dropdown = undefined;
-
-    this.image_mode = 'full';
-
-    this.root = $('<div/>');
-    this._root_extra_style(this.root)
-    this.root.attr('style', 'display: inline-block');
-
-    $(parent_element).append(this.root);
-
-    this._init_header(this);
-    this._init_canvas(this);
-    this._init_toolbar(this);
-
-    var fig = this;
-
-    this.waiting = false;
-
-    this.ws.onopen =  function () {
-            fig.send_message("supports_binary", {value: fig.supports_binary});
-            fig.send_message("send_image_mode", {});
-            if (mpl.ratio != 1) {
-                fig.send_message("set_dpi_ratio", {'dpi_ratio': mpl.ratio});
-            }
-            fig.send_message("refresh", {});
-        }
-
-    this.imageObj.onload = function() {
-            if (fig.image_mode == 'full') {
-                // Full images could contain transparency (where diff images
-                // almost always do), so we need to clear the canvas so that
-                // there is no ghosting.
-                fig.context.clearRect(0, 0, fig.canvas.width, fig.canvas.height);
-            }
-            fig.context.drawImage(fig.imageObj, 0, 0);
-        };
-
-    this.imageObj.onunload = function() {
-        fig.ws.close();
-    }
-
-    this.ws.onmessage = this._make_on_message_function(this);
-
-    this.ondownload = ondownload;
-}
-
-mpl.figure.prototype._init_header = function() {
-    var titlebar = $(
-        '<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ' +
-        'ui-helper-clearfix"/>');
-    var titletext = $(
-        '<div class="ui-dialog-title" style="width: 100%; ' +
-        'text-align: center; padding: 3px;"/>');
-    titlebar.append(titletext)
-    this.root.append(titlebar);
-    this.header = titletext[0];
-}
-
-
-
-mpl.figure.prototype._canvas_extra_style = function(canvas_div) {
-
-}
-
-
-mpl.figure.prototype._root_extra_style = function(canvas_div) {
-
-}
-
-mpl.figure.prototype._init_canvas = function() {
-    var fig = this;
-
-    var canvas_div = $('<div/>');
-
-    canvas_div.attr('style', 'position: relative; clear: both; outline: 0');
-
-    function canvas_keyboard_event(event) {
-        return fig.key_event(event, event['data']);
-    }
-
-    canvas_div.keydown('key_press', canvas_keyboard_event);
-    canvas_div.keyup('key_release', canvas_keyboard_event);
-    this.canvas_div = canvas_div
-    this._canvas_extra_style(canvas_div)
-    this.root.append(canvas_div);
-
-    var canvas = $('<canvas/>');
-    canvas.addClass('mpl-canvas');
-    canvas.attr('style', "left: 0; top: 0; z-index: 0; outline: 0")
-
-    this.canvas = canvas[0];
-    this.context = canvas[0].getContext("2d");
-
-    var backingStore = this.context.backingStorePixelRatio ||
-	this.context.webkitBackingStorePixelRatio ||
-	this.context.mozBackingStorePixelRatio ||
-	this.context.msBackingStorePixelRatio ||
-	this.context.oBackingStorePixelRatio ||
-	this.context.backingStorePixelRatio || 1;
-
-    mpl.ratio = (window.devicePixelRatio || 1) / backingStore;
-
-    var rubberband = $('<canvas/>');
-    rubberband.attr('style', "position: absolute; left: 0; top: 0; z-index: 1;")
-
-    var pass_mouse_events = true;
-
-    canvas_div.resizable({
-        start: function(event, ui) {
-            pass_mouse_events = false;
-        },
-        resize: function(event, ui) {
-            fig.request_resize(ui.size.width, ui.size.height);
-        },
-        stop: function(event, ui) {
-            pass_mouse_events = true;
-            fig.request_resize(ui.size.width, ui.size.height);
-        },
-    });
-
-    function mouse_event_fn(event) {
-        if (pass_mouse_events)
-            return fig.mouse_event(event, event['data']);
-    }
-
-    rubberband.mousedown('button_press', mouse_event_fn);
-    rubberband.mouseup('button_release', mouse_event_fn);
-    // Throttle sequential mouse events to 1 every 20ms.
-    rubberband.mousemove('motion_notify', mouse_event_fn);
-
-    rubberband.mouseenter('figure_enter', mouse_event_fn);
-    rubberband.mouseleave('figure_leave', mouse_event_fn);
-
-    canvas_div.on("wheel", function (event) {
-        event = event.originalEvent;
-        event['data'] = 'scroll'
-        if (event.deltaY < 0) {
-            event.step = 1;
-        } else {
-            event.step = -1;
-        }
-        mouse_event_fn(event);
-    });
-
-    canvas_div.append(canvas);
-    canvas_div.append(rubberband);
-
-    this.rubberband = rubberband;
-    this.rubberband_canvas = rubberband[0];
-    this.rubberband_context = rubberband[0].getContext("2d");
-    this.rubberband_context.strokeStyle = "#000000";
-
-    this._resize_canvas = function(width, height) {
-        // Keep the size of the canvas, canvas container, and rubber band
-        // canvas in synch.
-        canvas_div.css('width', width)
-        canvas_div.css('height', height)
-
-        canvas.attr('width', width * mpl.ratio);
-        canvas.attr('height', height * mpl.ratio);
-        canvas.attr('style', 'width: ' + width + 'px; height: ' + height + 'px;');
-
-        rubberband.attr('width', width);
-        rubberband.attr('height', height);
-    }
-
-    // Set the figure to an initial 600x600px, this will subsequently be updated
-    // upon first draw.
-    this._resize_canvas(600, 600);
-
-    // Disable right mouse context menu.
-    $(this.rubberband_canvas).bind("contextmenu",function(e){
-        return false;
-    });
-
-    function set_focus () {
-        canvas.focus();
-        canvas_div.focus();
-    }
-
-    window.setTimeout(set_focus, 100);
-}
-
-mpl.figure.prototype._init_toolbar = function() {
-    var fig = this;
-
-    var nav_element = $('<div/>')
-    nav_element.attr('style', 'width: 100%');
-    this.root.append(nav_element);
-
-    // Define a callback function for later on.
-    function toolbar_event(event) {
-        return fig.toolbar_button_onclick(event['data']);
-    }
-    function toolbar_mouse_event(event) {
-        return fig.toolbar_button_onmouseover(event['data']);
-    }
-
-    for(var toolbar_ind in mpl.toolbar_items) {
-        var name = mpl.toolbar_items[toolbar_ind][0];
-        var tooltip = mpl.toolbar_items[toolbar_ind][1];
-        var image = mpl.toolbar_items[toolbar_ind][2];
-        var method_name = mpl.toolbar_items[toolbar_ind][3];
-
-        if (!name) {
-            // put a spacer in here.
-            continue;
-        }
-        var button = $('<button/>');
-        button.addClass('ui-button ui-widget ui-state-default ui-corner-all ' +
-                        'ui-button-icon-only');
-        button.attr('role', 'button');
-        button.attr('aria-disabled', 'false');
-        button.click(method_name, toolbar_event);
-        button.mouseover(tooltip, toolbar_mouse_event);
-
-        var icon_img = $('<span/>');
-        icon_img.addClass('ui-button-icon-primary ui-icon');
-        icon_img.addClass(image);
-        icon_img.addClass('ui-corner-all');
-
-        var tooltip_span = $('<span/>');
-        tooltip_span.addClass('ui-button-text');
-        tooltip_span.html(tooltip);
-
-        button.append(icon_img);
-        button.append(tooltip_span);
-
-        nav_element.append(button);
-    }
-
-    var fmt_picker_span = $('<span/>');
-
-    var fmt_picker = $('<select/>');
-    fmt_picker.addClass('mpl-toolbar-option ui-widget ui-widget-content');
-    fmt_picker_span.append(fmt_picker);
-    nav_element.append(fmt_picker_span);
-    this.format_dropdown = fmt_picker[0];
-
-    for (var ind in mpl.extensions) {
-        var fmt = mpl.extensions[ind];
-        var option = $(
-            '<option/>', {selected: fmt === mpl.default_extension}).html(fmt);
-        fmt_picker.append(option)
-    }
-
-    // Add hover states to the ui-buttons
-    $( ".ui-button" ).hover(
-        function() { $(this).addClass("ui-state-hover");},
-        function() { $(this).removeClass("ui-state-hover");}
-    );
-
-    var status_bar = $('<span class="mpl-message"/>');
-    nav_element.append(status_bar);
-    this.message = status_bar[0];
-}
-
-mpl.figure.prototype.request_resize = function(x_pixels, y_pixels) {
-    // Request matplotlib to resize the figure. Matplotlib will then trigger a resize in the client,
-    // which will in turn request a refresh of the image.
-    this.send_message('resize', {'width': x_pixels, 'height': y_pixels});
-}
-
-mpl.figure.prototype.send_message = function(type, properties) {
-    properties['type'] = type;
-    properties['figure_id'] = this.id;
-    this.ws.send(JSON.stringify(properties));
-}
-
-mpl.figure.prototype.send_draw_message = function() {
-    if (!this.waiting) {
-        this.waiting = true;
-        this.ws.send(JSON.stringify({type: "draw", figure_id: this.id}));
-    }
-}
-
-
-mpl.figure.prototype.handle_save = function(fig, msg) {
-    var format_dropdown = fig.format_dropdown;
-    var format = format_dropdown.options[format_dropdown.selectedIndex].value;
-    fig.ondownload(fig, format);
-}
-
-
-mpl.figure.prototype.handle_resize = function(fig, msg) {
-    var size = msg['size'];
-    if (size[0] != fig.canvas.width || size[1] != fig.canvas.height) {
-        fig._resize_canvas(size[0], size[1]);
-        fig.send_message("refresh", {});
-    };
-}
-
-mpl.figure.prototype.handle_rubberband = function(fig, msg) {
-    var x0 = msg['x0'] / mpl.ratio;
-    var y0 = (fig.canvas.height - msg['y0']) / mpl.ratio;
-    var x1 = msg['x1'] / mpl.ratio;
-    var y1 = (fig.canvas.height - msg['y1']) / mpl.ratio;
-    x0 = Math.floor(x0) + 0.5;
-    y0 = Math.floor(y0) + 0.5;
-    x1 = Math.floor(x1) + 0.5;
-    y1 = Math.floor(y1) + 0.5;
-    var min_x = Math.min(x0, x1);
-    var min_y = Math.min(y0, y1);
-    var width = Math.abs(x1 - x0);
-    var height = Math.abs(y1 - y0);
-
-    fig.rubberband_context.clearRect(
-        0, 0, fig.canvas.width, fig.canvas.height);
-
-    fig.rubberband_context.strokeRect(min_x, min_y, width, height);
-}
-
-mpl.figure.prototype.handle_figure_label = function(fig, msg) {
-    // Updates the figure title.
-    fig.header.textContent = msg['label'];
-}
-
-mpl.figure.prototype.handle_cursor = function(fig, msg) {
-    var cursor = msg['cursor'];
-    switch(cursor)
-    {
-    case 0:
-        cursor = 'pointer';
-        break;
-    case 1:
-        cursor = 'default';
-        break;
-    case 2:
-        cursor = 'crosshair';
-        break;
-    case 3:
-        cursor = 'move';
-        break;
-    }
-    fig.rubberband_canvas.style.cursor = cursor;
-}
-
-mpl.figure.prototype.handle_message = function(fig, msg) {
-    fig.message.textContent = msg['message'];
-}
-
-mpl.figure.prototype.handle_draw = function(fig, msg) {
-    // Request the server to send over a new figure.
-    fig.send_draw_message();
-}
-
-mpl.figure.prototype.handle_image_mode = function(fig, msg) {
-    fig.image_mode = msg['mode'];
-}
-
-mpl.figure.prototype.updated_canvas_event = function() {
-    // Called whenever the canvas gets updated.
-    this.send_message("ack", {});
-}
-
-// A function to construct a web socket function for onmessage handling.
-// Called in the figure constructor.
-mpl.figure.prototype._make_on_message_function = function(fig) {
-    return function socket_on_message(evt) {
-        if (evt.data instanceof Blob) {
-            /* FIXME: We get "Resource interpreted as Image but
-             * transferred with MIME type text/plain:" errors on
-             * Chrome.  But how to set the MIME type?  It doesn't seem
-             * to be part of the websocket stream */
-            evt.data.type = "image/png";
-
-            /* Free the memory for the previous frames */
-            if (fig.imageObj.src) {
-                (window.URL || window.webkitURL).revokeObjectURL(
-                    fig.imageObj.src);
-            }
-
-            fig.imageObj.src = (window.URL || window.webkitURL).createObjectURL(
-                evt.data);
-            fig.updated_canvas_event();
-            fig.waiting = false;
-            return;
-        }
-        else if (typeof evt.data === 'string' && evt.data.slice(0, 21) == "data:image/png;base64") {
-            fig.imageObj.src = evt.data;
-            fig.updated_canvas_event();
-            fig.waiting = false;
-            return;
-        }
-
-        var msg = JSON.parse(evt.data);
-        var msg_type = msg['type'];
-
-        // Call the  "handle_{type}" callback, which takes
-        // the figure and JSON message as its only arguments.
-        try {
-            var callback = fig["handle_" + msg_type];
-        } catch (e) {
-            console.log("No handler for the '" + msg_type + "' message type: ", msg);
-            return;
-        }
-
-        if (callback) {
-            try {
-                // console.log("Handling '" + msg_type + "' message: ", msg);
-                callback(fig, msg);
-            } catch (e) {
-                console.log("Exception inside the 'handler_" + msg_type + "' callback:", e, e.stack, msg);
-            }
-        }
-    };
-}
-
-// from http://stackoverflow.com/questions/1114465/getting-mouse-location-in-canvas
-mpl.findpos = function(e) {
-    //this section is from http://www.quirksmode.org/js/events_properties.html
-    var targ;
-    if (!e)
-        e = window.event;
-    if (e.target)
-        targ = e.target;
-    else if (e.srcElement)
-        targ = e.srcElement;
-    if (targ.nodeType == 3) // defeat Safari bug
-        targ = targ.parentNode;
-
-    // jQuery normalizes the pageX and pageY
-    // pageX,Y are the mouse positions relative to the document
-    // offset() returns the position of the element relative to the document
-    var x = e.pageX - $(targ).offset().left;
-    var y = e.pageY - $(targ).offset().top;
-
-    return {"x": x, "y": y};
-};
-
-/*
- * return a copy of an object with only non-object keys
- * we need this to avoid circular references
- * http://stackoverflow.com/a/24161582/3208463
- */
-function simpleKeys (original) {
-  return Object.keys(original).reduce(function (obj, key) {
-    if (typeof original[key] !== 'object')
-        obj[key] = original[key]
-    return obj;
-  }, {});
-}
-
-mpl.figure.prototype.mouse_event = function(event, name) {
-    var canvas_pos = mpl.findpos(event)
-
-    if (name === 'button_press')
-    {
-        this.canvas.focus();
-        this.canvas_div.focus();
-    }
-
-    var x = canvas_pos.x * mpl.ratio;
-    var y = canvas_pos.y * mpl.ratio;
-
-    this.send_message(name, {x: x, y: y, button: event.button,
-                             step: event.step,
-                             guiEvent: simpleKeys(event)});
-
-    /* This prevents the web browser from automatically changing to
-     * the text insertion cursor when the button is pressed.  We want
-     * to control all of the cursor setting manually through the
-     * 'cursor' event from matplotlib */
-    event.preventDefault();
-    return false;
-}
-
-mpl.figure.prototype._key_event_extra = function(event, name) {
-    // Handle any extra behaviour associated with a key event
-}
-
-mpl.figure.prototype.key_event = function(event, name) {
-
-    // Prevent repeat events
-    if (name == 'key_press')
-    {
-        if (event.which === this._key)
-            return;
-        else
-            this._key = event.which;
-    }
-    if (name == 'key_release')
-        this._key = null;
-
-    var value = '';
-    if (event.ctrlKey && event.which != 17)
-        value += "ctrl+";
-    if (event.altKey && event.which != 18)
-        value += "alt+";
-    if (event.shiftKey && event.which != 16)
-        value += "shift+";
-
-    value += 'k';
-    value += event.which.toString();
-
-    this._key_event_extra(event, name);
-
-    this.send_message(name, {key: value,
-                             guiEvent: simpleKeys(event)});
-    return false;
-}
-
-mpl.figure.prototype.toolbar_button_onclick = function(name) {
-    if (name == 'download') {
-        this.handle_save(this, null);
-    } else {
-        this.send_message("toolbar_button", {name: name});
-    }
-};
-
-mpl.figure.prototype.toolbar_button_onmouseover = function(tooltip) {
-    this.message.textContent = tooltip;
-};
-mpl.toolbar_items = [["Home", "Reset original view", "fa fa-home icon-home", "home"], ["Back", "Back to  previous view", "fa fa-arrow-left icon-arrow-left", "back"], ["Forward", "Forward to next view", "fa fa-arrow-right icon-arrow-right", "forward"], ["", "", "", ""], ["Pan", "Pan axes with left mouse, zoom with right", "fa fa-arrows icon-move", "pan"], ["Zoom", "Zoom to rectangle", "fa fa-square-o icon-check-empty", "zoom"], ["", "", "", ""], ["Download", "Download plot", "fa fa-floppy-o icon-save", "download"]];
-
-mpl.extensions = ["eps", "pdf", "png", "ps", "raw", "svg"];
-
-mpl.default_extension = "png";var comm_websocket_adapter = function(comm) {
-    // Create a "websocket"-like object which calls the given IPython comm
-    // object with the appropriate methods. Currently this is a non binary
-    // socket, so there is still some room for performance tuning.
-    var ws = {};
-
-    ws.close = function() {
-        comm.close()
-    };
-    ws.send = function(m) {
-        //console.log('sending', m);
-        comm.send(m);
-    };
-    // Register the callback with on_msg.
-    comm.on_msg(function(msg) {
-        //console.log('receiving', msg['content']['data'], msg);
-        // Pass the mpl event to the overriden (by mpl) onmessage function.
-        ws.onmessage(msg['content']['data'])
-    });
-    return ws;
-}
-
-mpl.mpl_figure_comm = function(comm, msg) {
-    // This is the function which gets called when the mpl process
-    // starts-up an IPython Comm through the "matplotlib" channel.
-
-    var id = msg.content.data.id;
-    // Get hold of the div created by the display call when the Comm
-    // socket was opened in Python.
-    var element = $("#" + id);
-    var ws_proxy = comm_websocket_adapter(comm)
-
-    function ondownload(figure, format) {
-        window.open(figure.imageObj.src);
-    }
-
-    var fig = new mpl.figure(id, ws_proxy,
-                           ondownload,
-                           element.get(0));
-
-    // Call onopen now - mpl needs it, as it is assuming we've passed it a real
-    // web socket which is closed, not our websocket->open comm proxy.
-    ws_proxy.onopen();
-
-    fig.parent_element = element.get(0);
-    fig.cell_info = mpl.find_output_cell("<div id='" + id + "'></div>");
-    if (!fig.cell_info) {
-        console.error("Failed to find cell for figure", id, fig);
-        return;
-    }
-
-    var output_index = fig.cell_info[2]
-    var cell = fig.cell_info[0];
-
-};
-
-mpl.figure.prototype.handle_close = function(fig, msg) {
-    var width = fig.canvas.width/mpl.ratio
-    fig.root.unbind('remove')
-
-    // Update the output cell to use the data from the current canvas.
-    fig.push_to_output();
-    var dataURL = fig.canvas.toDataURL();
-    // Re-enable the keyboard manager in IPython - without this line, in FF,
-    // the notebook keyboard shortcuts fail.
-    IPython.keyboard_manager.enable()
-    $(fig.parent_element).html('<img src="' + dataURL + '" width="' + width + '">');
-    fig.close_ws(fig, msg);
-}
-
-mpl.figure.prototype.close_ws = function(fig, msg){
-    fig.send_message('closing', msg);
-    // fig.ws.close()
-}
-
-mpl.figure.prototype.push_to_output = function(remove_interactive) {
-    // Turn the data on the canvas into data in the output cell.
-    var width = this.canvas.width/mpl.ratio
-    var dataURL = this.canvas.toDataURL();
-    this.cell_info[1]['text/html'] = '<img src="' + dataURL + '" width="' + width + '">';
-}
-
-mpl.figure.prototype.updated_canvas_event = function() {
-    // Tell IPython that the notebook contents must change.
-    IPython.notebook.set_dirty(true);
-    this.send_message("ack", {});
-    var fig = this;
-    // Wait a second, then push the new image to the DOM so
-    // that it is saved nicely (might be nice to debounce this).
-    setTimeout(function () { fig.push_to_output() }, 1000);
-}
-
-mpl.figure.prototype._init_toolbar = function() {
-    var fig = this;
-
-    var nav_element = $('<div/>')
-    nav_element.attr('style', 'width: 100%');
-    this.root.append(nav_element);
-
-    // Define a callback function for later on.
-    function toolbar_event(event) {
-        return fig.toolbar_button_onclick(event['data']);
-    }
-    function toolbar_mouse_event(event) {
-        return fig.toolbar_button_onmouseover(event['data']);
-    }
-
-    for(var toolbar_ind in mpl.toolbar_items){
-        var name = mpl.toolbar_items[toolbar_ind][0];
-        var tooltip = mpl.toolbar_items[toolbar_ind][1];
-        var image = mpl.toolbar_items[toolbar_ind][2];
-        var method_name = mpl.toolbar_items[toolbar_ind][3];
-
-        if (!name) { continue; };
-
-        var button = $('<button class="btn btn-default" href="#" title="' + name + '"><i class="fa ' + image + ' fa-lg"></i></button>');
-        button.click(method_name, toolbar_event);
-        button.mouseover(tooltip, toolbar_mouse_event);
-        nav_element.append(button);
-    }
-
-    // Add the status bar.
-    var status_bar = $('<span class="mpl-message" style="text-align:right; float: right;"/>');
-    nav_element.append(status_bar);
-    this.message = status_bar[0];
-
-    // Add the close button to the window.
-    var buttongrp = $('<div class="btn-group inline pull-right"></div>');
-    var button = $('<button class="btn btn-mini btn-primary" href="#" title="Stop Interaction"><i class="fa fa-power-off icon-remove icon-large"></i></button>');
-    button.click(function (evt) { fig.handle_close(fig, {}); } );
-    button.mouseover('Stop Interaction', toolbar_mouse_event);
-    buttongrp.append(button);
-    var titlebar = this.root.find($('.ui-dialog-titlebar'));
-    titlebar.prepend(buttongrp);
-}
-
-mpl.figure.prototype._root_extra_style = function(el){
-    var fig = this
-    el.on("remove", function(){
-	fig.close_ws(fig, {});
-    });
-}
-
-mpl.figure.prototype._canvas_extra_style = function(el){
-    // this is important to make the div 'focusable
-    el.attr('tabindex', 0)
-    // reach out to IPython and tell the keyboard manager to turn it's self
-    // off when our div gets focus
-
-    // location in version 3
-    if (IPython.notebook.keyboard_manager) {
-        IPython.notebook.keyboard_manager.register_events(el);
-    }
-    else {
-        // location in version 2
-        IPython.keyboard_manager.register_events(el);
-    }
-
-}
-
-mpl.figure.prototype._key_event_extra = function(event, name) {
-    var manager = IPython.notebook.keyboard_manager;
-    if (!manager)
-        manager = IPython.keyboard_manager;
-
-    // Check for shift+enter
-    if (event.shiftKey && event.which == 13) {
-        this.canvas_div.blur();
-        event.shiftKey = false;
-        // Send a "J" for go to next cell
-        event.which = 74;
-        event.keyCode = 74;
-        manager.command_mode();
-        manager.handle_keydown(event);
-    }
-}
-
-mpl.figure.prototype.handle_save = function(fig, msg) {
-    fig.ondownload(fig, null);
-}
-
-
-mpl.find_output_cell = function(html_output) {
-    // Return the cell and output element which can be found *uniquely* in the notebook.
-    // Note - this is a bit hacky, but it is done because the "notebook_saving.Notebook"
-    // IPython event is triggered only after the cells have been serialised, which for
-    // our purposes (turning an active figure into a static one), is too late.
-    var cells = IPython.notebook.get_cells();
-    var ncells = cells.length;
-    for (var i=0; i<ncells; i++) {
-        var cell = cells[i];
-        if (cell.cell_type === 'code'){
-            for (var j=0; j<cell.output_area.outputs.length; j++) {
-                var data = cell.output_area.outputs[j];
-                if (data.data) {
-                    // IPython >= 3 moved mimebundle to data attribute of output
-                    data = data.data;
-                }
-                if (data['text/html'] == html_output) {
-                    return [cell, data, j];
-                }
-            }
-        }
-    }
-}
-
-// Register the function which deals with the matplotlib target/channel.
-// The kernel may be null if the page has been refreshed.
-if (IPython.notebook.kernel != null) {
-    IPython.notebook.kernel.comm_manager.register_target('matplotlib', mpl.mpl_figure_comm);
-}
-
-</script>
-</div>
-
-</div>
-
-<div class="output_area">
-
-<div class="prompt"></div>
-
-
-
-<div class="output_html rendered_html output_subarea ">
-<img src="data:image/png;base64,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7LFmPXokO1HRCAAhvExWrxgAnuR1YthsVQSAAAAAQAVRl54W1fj441BDhoSAT6Vhp40N+RTazT77lIFeunS55shD89P9qXD27rvNrr023I9p6gI8/HCzww4L3ZOoXASAEALA6kUACAAAAGAKY8eG7r0Y9KXr11+TKxVJC0/MN5/ZAguYzT9/7an2qbNPl6P0FAYOHGh23XVmt99ed/7AOeYwO+88sx12SHag4hAAQggAqxcBIAAAAFDFRo0ye//9UOrmUynk+/rrMKS3WJqDLx3ypYM+vc2ng6+y/Pij2cknm112mdnEiclOd+SRZqefbta2bbIDFYMAEEIAWL0IAAEAAIAqoFV2FezFxSBi5Zv/rT69epkttFDdWnDBMFSXUCh7tGCIQr/77092uC23NLvpJhYJqTQEgBACwOoVA8APvdp7+Z9z0+c733kN9Lre6zmvlkIACAAAADQjDeP0t9Z1Qj6tAqvwb8KE5EoN0FxvuSGfSh19XbokV0JVueQSswMPrO0KXXttsyeeIPStJASAEALA6hUDwPros57dvUbVnGuchhK92b3e0AYBIAAAANA4mosvHfSpNJRXw3qLoZVeF1+8thZdNAR9mu+NFXWR67HHzLbbzmz06HD+ggvMDjoobKP8EQBCeGmvXprW9UGvZ7yGeP3uNYvX6l77es3kJS94reNV5GeGfysmYKxBAAgAAADkp5V1NTdfbtjnx/NFad8+BHsK+ZZYojbw03Begj40xjN+5KjuP9G8j2+9ZdanTziP8kYACOElv3p18yq0htdsXo95LV1zzuxAr4vCZtEIAAEAAIAiafiuFt+IAZ+G7upU87ClF2Koj47vY8AXa+GFWWkXzefgg80uvDBsr7OO2ZNPhm2UNwJACAEgCpnX6yMvvV34zGsBr8ZgCDAAAACQh8K+zz8PHVSqN980e/vt4ofvzjDDlEHfYouZddNH/EALGjvWbJFFzL76KnSQKrSuzZVQrggAIQSAqM/DXhuFTevpNSJsNgslfiwCAgAAgExT2PfFFyHki4Gfqpiwr0OHELbkhn1668zwXZTKiSeanXRS2L78crN99gnbKF8EgBD+bKA+Z3sdHjatr1dNx14zIQAEAABApsSwL7ezTwt2NKRHD7Oll647T5/m7lMICJST114zW3HFsL3TTmY33xy2Ub4IACEEgKjPOV6HhU0C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H+AMM4Rt5KWuv8MOM7vqqmSHU9efPuxQNyDBH6bGsGHDbK655krOmTaGhU1UE971oFQIAAEAwBT+/DMMbVPop/Jjlry6dTNbf/0Q+ul05snfh1YZTQT47bfJtRKaFPCf/zT7v//zw56/D4AAtDSN1Z9+erNx48wWXNDs44+TC5DPk0+a7b23jo+SHW7NNc2uucZsnnmSHcBUIACEEACiVAgAAQBADS22GwO/554zGzs2uSDHoouabbxxCP3UwKd1O+yzz8zOOiss8auQIW2JJUK33447mk0zTbITQKt5912zpZcO2zvsYHbrrWEbdYwaFbr+rr462eGmmy50/emzC7r+0FQEgBBeSgAAANCqJk40e+kls6OOMltsMbPevc3228/sscfqhn+dOoXuvosvDgvzfvBByPpWW82s/QeDQqCw0ELhqDmGfzpS3mKLkCQqfNhrL8I/oFQefzzZcMstl2wg0pQG994b5vpLh3/q+tNcf/vuS/gHoPnQAYhSoQMQAIAq8tNPIQtQl59Of/kluSBHz56hw0+11lph7qs6Bg40O/308I3SunY1+8c/QpLIWDmg9CZPNltggZDey+efs2xtihYvOvBAs6efTnY4df2de27o+mOKUjQnOgAhvKygVAgAAQDIMHW2vP9+WLxDWd0rr4Q8IJcOcldcsTb0W3LJPAe++maaHEvB34svJjsTs8xidvDBYVlMFhcAyocm81x77bC9zjrhOYya4b5aeFydzeqGjtZd1+yKK/j8Ai2DABBCAIhSIQAEACBjtICHRt7G0C89kX2acrr0Ah7K8PJSYnjffSH4e/vtZGdCBzJHHGG2555m006b7ARQNrbf3uyOO8L2nXeabbNN2K5Sejm78cYw9cHIkclON/fcZhdcYLb55nT9oeUQAEJ4iUGpEAACAJAB33wTwj6VGn4KLeCxyCJ1F/Do0CG5IB+tHHrLLWZnnjnlqqGa809H0FrYo2PHZCeAsvLDD/5u39/fjx8fEv5hw6r6+frmm2b772/26qvJDte5c3gp0+cYTFOKlkYACGFKUQAAABRt0iSzl182O/rosMiuulc0+lYBYDr807H+euvVLuCh+a7OPtts9dXrCf/UQqgvmH9+sz32qBv+LbOM2d13h5VAdt+d8A8oZ2p1U/gnVfx8VQ6qqUn79q0b/m25pdlHH5mdcALhH4DWQwcg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lc94znO67nnP6/eB2Ze5O08+eVvZl7n8zj139OAEubz/8MO3FX53u5tVegEAZpkCkFAAMi0KwAakJLjd7baNDjrqqK57/evN7QWz7JJL+uJ+KPw+8pGuu/DC0YMTXP3q/ai+ofC7y1267ipXGT0IAMDMUwAS3qYzLQrAOZfLfR/96K479tj+doqB97yn6/baq78NzIbvf7/rPv7xbYVf9lMCrmS//bYt1pH8/M933R57jB4EAGDuKAAJBSDTogCcc296U9c99rH9/v77d93nPtd117tefxuYjszfd/rpXffRj25LVugd5uecJOftUPal+LvNbbruilccPQgAwNxTABIKQKZFATjH6vWju+1tu+788/vbb31r1z3qUf0+sPsMo/uGsi/75503enAFN7nJ9iP8bnpTl+0DALRMAUj4lZ9pUQDOsYc8pOuOP77ff8xjuu6Nb+z3ga2T0X1f+MK2su9jH1t7dF9W6M08nVmo4x736Is/P24BABaLApBQADItCsA5lcUDDjus37/+9ftLfzNnGLC5LrigH9GXom8o/IZRtyu51rX6sm/Ine/cL+IBAMDiUgASCkCmRQE4px784K474YR+/+Uv77qjj+73gZ23fHRfcsopa4/uu/3tt5V9d71rf3mvy3kBABinACS8TWBaFIBz6JOf7EcURV4/zjij6/bcs78NrN8wum8o+7K/1ui+a197+7LP6D4AANZDAUgoAJkWBeAcynx/b35zv3/MMV335Cf3+8DKMrrvtNP6om+4nHc9o/vucIe+6BtKv4MPNroPAICNUwAS3kowLQrAOXP55f38YllhdN99u+7ss7tur71GDwJLUuqddVbXfeIT/YjZzJm50dF9SUb3Xe1qowcBAGAXKAAJBeDi+kDl3v3umrbi34kCcM6ML/5x5JFd9/a39/uwqIayL0VfMpR+3/726Akr2GOP7efuSw46yOg+AAC2hgKQ8HZjcSkA2ZAXvKDrnvWsft/iHyyalH3f/Ob2RV9yzjmjJ6ziOtfZvuy7052M7gMAYPdRABIKwMU1FID1VrZ7Qu5YxedG282kAJwzGfX3znf2+5nP7Ba36PehRSn7xou+7K+n7DvggL7gS3IZb7YHHmh0HwAA06MAJLwlWVxDAfjByhG5YzdTAM6Zhz6069797n4/8/9lVBO0YNLIvvwbX8v++28r+Ybc+MbKPgAAZosCkPA2ZXEpANmQhzyk644/vt/PHGdZEATmzVD2DUnpt96ybyj5htJP2QcAwDxQABLeuiwuBSAb8uAHd90JJ/T7Wfjg+tfv92EWZc6+b32r6z71qW1FX7a5by377bd90ZdYpAMAgHmlACS8nVlcCkA25ClP6boXv7jfP+64rnvYw/p9mLYf/KDrPve5rvvsZ7fP9743esIqhrJvvPBT9gEA0BIFIOEtzuIaCsBMa58i7paVK1e+W/lk5R2VN1curWwFBeCcyei/jAKMo47quje8od+H3eWyy7ru9NN3LPrOPHP0hDXsu+/2RV9y8MHKPgAA2qYAJLztWVxDAbiaUyqPqJy6dGtj1mr0rls5KTsKwPlwySVdd73rdd1553Xdnnv2l1be5jajB2ET5fLdXGa+vOg7tX4S/fjHoyetIZeo3/a2XXf7228r/ZR9AAAsIgUg4a3Q4npf5SeV/1v5dOXcyj6VO1aOrtyqEhkheFjla0u31q/ewq+PAnB+POMZXfdXf9Xv3+EOXffxj/dlIOysCy6YfPnu+eePnrCGvffuukMP7cu+8RxwwOgJAACw4BSAhAJwce1bWektdi4FflXlcUu3uu64ysP73XVTADbo4ov7kVSf/3x/+3d/t+te+tKuu+IV+9uwkksv7bovfKEv9z7zmW1F39fW+dHCla7Udbe4xY5FX1bi9e8PAABWpgAkFICzbY/KZszB94TKa/vddct/u96eL80NGGnozup318UlwI06+eSuO+ywvtCJRz6y6173uq676lX72yy2LMiRefpS9g055ZSuO+20bf9m1nKDG+xY9N3qVl23116jJwAAAOumACQUgLNtmgVgPLXywn63e2zlTf3upkjjZxGQOfXqV3fd0Ud33U9yEXlJIXjssf1oLNp3+eX9yL2UeuNFX/LNb46etA777LNj0ZfLeffff/QEAABglykACQXg7BtG4O2Kb1Uu6Hc35AGVf+53uz+tDGXgZlAAzrmsCvzoR3fdD3/Y387orKc8peue/vSuu8Y1+vuYX1mI45xzuu6MM7rui1/st0PJl9tZFGa99thjx8t3b3e7rjvwwHoR8ioEAABbSgFIeOvFah5YOaHfVQCyo09/uuse9KC8oIzuKNe8Ztc9+9ld9/jHd93P/dzoTmZSSr6zz96+5Bu2yYUXjp64Tll4I0XfeG55y667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" width="640">
-</div>
-
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The blue ellipse represents the prediction, or in other words, the robot's belief prior to incorporating the measurement. The red ellipse is the belief after the measurement. Both ellipses are 95% error ellipses. Note that the belief has moved to the right and shrunk. Also note that even though the measurement had no information on acceleration, the Kalman filter algorithm was able to incorporate knowledge of the covariance to provide a reasonable estimate of acceleration.</p>
+<ul>
+<li><a href="#02:-Conditional-Probability">Back to Top</a></li>
+<li><a href="nb01.html">Back to List of PR Notebooks</a></li>
+<li><a href="http://irwinsnet.github.io">Back to Projects List</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div>
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><em>Stacy Irwin, 8 July 2018</em></p>
 
 </div>
 </div>
