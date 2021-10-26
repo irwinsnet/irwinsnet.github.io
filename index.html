@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2021-07-01" />
+<meta name="date" content="2021-10-22" />
 
 <title>Stacy Irwin’s Portfolio</title>
 
@@ -165,7 +165,7 @@ pre code {
 
 
 <h1 class="title toc-ignore">Stacy Irwin’s Portfolio</h1>
-<h4 class="date">1 July 2021</h4>
+<h4 class="date">22 October 2021</h4>
 
 </div>
 
@@ -222,14 +222,14 @@ pre code {
 <h4>Research Question</h4>
 <p>In <a href="https://par.nsf.gov/servlets/purl/10170033">Context-Aware Document Term Weighting for Ad-Hoc Search</a> Dai and Callan describe a BERT-based model for generating document retrieval indexes. Traditional indexes contain document term weights based on term frequency (how many times a term occurs within a document) and inverse document frequency (how common or rare a term is within a document collection). These techniques are often referred to as TF-IDF. Dai and Callan built a model that analyzes how terms are used within a text passage and generates weights based on the term’s importance. An advantaged of Dai and Callan’s approach is that the machine learning models are used offline, when the index is built. Processing a query only requires index look-ups, which are efficient compared to using machine learning models. A disadvantage is that for a given document, the index only contains terms that occur in the document. If a query uses synonyms or other related terms that do not occur in a specific document, the system will not return the document, even though it may be relevant to the users information needs. This issue is called vocabulary mismatch.</p>
 <p>We’re interested in techniques that retain the evaluation of the importance of a term within a sentence, but that also address vocabulary mismatch. Specifically, we’re developing techniques for adding terms to the document index that are related to a document’s topic but that don’t appear in the document. Theoretically, this should improve the system’s recall. Other researchers are trying various approaches, such as Nogueira et. al.’s <a href="https://arxiv.org/abs/1904.08375">doc2query</a> and <a href="https://cs.uwaterloo.ca/~jimmylin/publications/Nogueira_Lin_2019_docTTTTTquery-v2.pdf">docTTTTTquery</a> models.</p>
-<p>I will post a link to the project repository when the project is completed.</p>
+<p><a href="https://github.com/sirwin31/neural_info_retrieval">Here is a link to the project Github repo.</a></p>
 </div>
 </div>
 </div>
 <div id="teaching-python" class="section level2">
 <h2><a id="python"></a>Teaching Python</h2>
 <p>I’ve been a mentor for a <a href="https://www.firstinspires.org/robotics/frc/what-is-first-robotics-competition">FIRST Robotics Competition (FRC)</a> team now for about five years. My son and daughter have both aged out of the team and headed off to college, but I’m still around. It might have something to do with FRC being one of the most fun activities I’ve ever come across.</p>
-<p>I started teaching the students Python a few years ago. I couldn’t find any online teaching materials that precisely met our requirements, so I created our own course. All information is presented via Jupyter notebooks, and the first few lessons can be completed on <a href="https://mybinder.org/v2/gh/irs1318dev/pyclass_frc/master">mybinder.org without installing any software.</a> Or the course materials can be <a href="https://github.com/irs1318dev/pyclass_frc">downloaded to your computer from GitHub.</a></p>
+<p>I started teaching the students Python a few years ago. I couldn’t find any online teaching materials that precisely met our requirements, so I created our own course. All information is presented via Jupyter notebooks, and the first few lessons can be completed on <a href="https://colab.research.google.com/github/irs1318dev/pyclass_frc/blob/master/index.ipynb">Google Colab without installing any software.</a>. Or the course materials can be <a href="https://github.com/irs1318dev/pyclass_frc">downloaded to your computer from GitHub.</a></p>
 <p>The course is taught from a data-analysis perspective. We want the students to understand that coding skills are useful for everyone, not just computer science majors and software engineers.</p>
 </div>
 <div id="frc-robot-path-viewer" class="section level2">
@@ -254,11 +254,11 @@ pre code {
 <p>We use quite a bit of ded-reckoning and some vision processing to control our robots during the autonomous mode. I was curious if there were more advanced techniques that could be used in an FRC setting (meaning our high-school students need to understand how it works). So I started working through <a href="http://www.probabilistic-robotics.org/">Probabilistic Robotics</a> by Sebastian Thrun, Wolfram Burgard, and Dieter Fox. I’ve worked through several of the exercises in chapters 2 through 5 using Python and Jupyter notebooks. <a href="probrob/nb01.html">My notebooks are at this link</a>.</p>
 <p>And no, I have not found an opportunity to use any of these techniques on our competition robots. But I am tempted by particle filters.</p>
 </div>
-<div id="r-analytics-application-for-robotics-competitions" class="section level2">
-<h2><a id="scouting"></a>R Analytics Application for Robotics Competitions</h2>
+<div id="python-analytics-application-for-robotics-competitions" class="section level2">
+<h2><a id="scouting"></a>Python Analytics Application for Robotics Competitions</h2>
 <p>FRC teams often develop their own applications for analyzing the performance of competitors’ robots. The output from these applications is used to make decisions during the competition. I and other adult mentors assisted members of the <a href="https://team1318.org">The Issaquah Robotics Society</a> with developing such an application.</p>
 <p>Students enter data into the application via a custom-build Android client app. The app sends information via HTTP to a Python web server, which stores the data in a PostgreSQL database. We use the Pandas and Bokeh python packages for analysis and visualization. <a href="https://github.com/irs1318dev/scouting2020">The Github repository is here.</a></p>
-<p>In hindsight, we made the application too complicated. The PostgreSQL database uses a complex star schema, which is difficult for high school robotics students (and adult mentors) to understand. We plan to simplify the system before the 2022 competitions season. We’ll use fewer and flatter database tables and switch to a Sqlite database, which is more than sufficient for the sizes of our datasets.</p>
+<p>In hindsight, we made the application too complicated. The PostgreSQL database uses a complex star schema, which is difficult for high school robotics students (and adult mentors) to understand. We plan to simplify the system before the 2022 competition season. We’ll use fewer and flatter database tables and switch to a Sqlite database, which is sufficient our dataset.</p>
 </div>
 <div id="about-me" class="section level2">
 <h2>About Me</h2>
