@@ -9,7 +9,7 @@ output:
 
 I’m a former nuclear submariner who is transitioning to data science. I have
 over ten years’ experience in programming and using statistical analysis to
-solve business problems. I
+solve business problems.
 
 This page lists several of my projects that are related to coding, statistics,
 and data science. Feel free to send me a message on
@@ -37,7 +37,7 @@ Washington state.
 * [Python Tutorial Github Repo](https://github.com/irs1318dev/pyclass_frc)
 
 
-#### Projects Related to [FIRST](https://firstinspires.org)
+#### Projects Related to [FIRST](https://www.firstinspires.org)
 These projects related to my work with the robotics team at Issaquah High School.
 
 * [FRC Robot Path Viewer](http://pviewer.herokuapp.com)
