@@ -1,0 +1,192 @@
+---
+title: "Stacy Irwin's Portfolio"
+date: "13 November 2021"
+output: 
+  html_document: 
+    theme: journal
+---
+![He/Him](images/profile_headshot.JPG){width=20%}
+
+I’m a former nuclear submariner who is transitioning to data science. I have
+over ten years’ experience in programming and using statistical analysis to
+solve business problems. I
+
+This page lists several of my projects that are related to coding, statistics,
+and data science. Feel free to send me a message on
+[LinkedIn](https://www.linkedin.com) if you would like to chat
+about any of these projects.
+
+## Quick Links
+* [LinkedIn Profile](https://www.linkedin.com/in/stacyirwinseattle/)
+* [R&#x00E9;sum&#x00E9;](docs/Resume_Stacy_Irwin_12Nov2021.pdf)
+
+## Project List
+#### Masters Degree Projects
+These projects were completed to meet the requirements of the Masters of
+Information and Data Science (MIDS) Program at the University of California
+Berkeley.
+
+* [Article-Level Fake News Detection With BERT-Derived Natural Language Processing Architectures](https://github.com/irwinsnet/w266_project)
+* [Transformers for Expansion of Sparse Indexes in Information Retrieval](https://github.com/sirwin31/neural_info_retrieval)
+
+#### Teaching Python
+An online Python course created for robotics students at Issaquah High School in
+Washington state.
+
+* [Python Tutorial on Google Colab](https://colab.research.google.com/github/irs1318dev/pyclass_frc/blob/master/index.ipynb)
+* [Python Tutorial Github Repo](https://github.com/irs1318dev/pyclass_frc)
+
+
+#### Projects Related to [FIRST](https://firstinspires.org)
+These projects related to my work with the robotics team at Issaquah High School.
+
+* [FRC Robot Path Viewer](http://pviewer.herokuapp.com)
+* [R Package for Downloading Robotics Competition Data](https://github.com/irwinsnet/firstapiR)
+* [Analytics Application for Robotics Competitions](https://github.com/irs1318dev/scouting2020)
+
+#### Other Projects
+
+  * [Probabilistic Robotics](probrob/nb01.html)
+
+
+## Project Descriptions
+
+### Article-Level Fake News Detection With BERT-Derived Natural Language Processing Architectures
+I and one other student collaborated on this project for Berkeley's W266 course
+in natural language processing (NLP). [Here is a link to the project repo.](https://github.com/irwinsnet/w266_project)
+
+##### Research Question
+Due to BERT's sequence length limit of 512 tokens, many
+article classifiers ignore all portions of an article that exceed this limit. We
+were curious if the
+[Longformer model](https://arxiv.org/abs/2004.05150),
+with it's 4096 token limit, would perform better on classifying articles as
+either fake or real news compared to a BERT model with a 512 token sequence
+limit. Our dataset, the FakeNewsNet corpus, consisted of about 24,000 fake and
+real articles. Approximately one thousand of the articles were on political
+topics, while the rest focused on celebrity news.
+
+##### What we Learned
+The memory requirements of typical attention mechanism used by BERT and other
+transformers are proportional to the square of the sequence length. Longformer
+uses a sparse attention mechanism with memory requirements that scale linearly
+with sequence length.
+
+Nevertheless, Longformer's memory requirements are still significant, and we had
+difficulty successfully training it with the Google Cloud Platform resources that
+fell within our budget. Perhaps due to the small training batch size and the
+relatively small dataset, we were unable to get Longformer to outperform a
+simple model based on [DistilBERT](https://arxiv.org/abs/1910.01108),
+(which truncated all articles at 512 tokens).
+
+Our best performing model achieved an F1 score of about 0.707. We used a
+DistilBERT model to classify articles as either celebrity or political news,
+then used one of two [RoBERTa](https://arxiv.org/abs/1907.11692) models to
+classify the articles as real or fake.
+
+With respect to learning how to implement transformer models and use Pytorch,
+this was a useful project.
+
+---
+
+### Transformers for Expansion of Sparse Indexes in Information Retrieval
+Berkeley MIDS students complete a final group project before receiving their
+diplomas. I worked with three other students on a project that applies recent
+advancements in NLP to the field of information retrieval. The project was
+inspired by work completed by [Zhuyun Dai and Jamie Callan at Carnegie Mellon
+University](https://dl.acm.org/doi/10.1145/3366423.3380258) and [Rodrigo Nogueira
+and Jimmy Lin at University of Waterloo.](https://cs.uwaterloo.ca/~jimmylin/publications/Nogueira_Lin_2019_docTTTTTquery-v2.pdf)
+
+##### Research Question
+In [Context-Aware Document Term Weighting for Ad-Hoc Search](https://par.nsf.gov/servlets/purl/10170033)
+Dai and Callan describe a BERT-based model for generating document retrieval
+indexes. Traditional indexes contain document term weights based on term
+frequency (how many times a term occurs within a document) and inverse document
+frequency (how common or rare a term is within a document collection). These
+techniques are often referred to as TF-IDF. Dai and Callan built a model that
+analyzes how terms are used within a text passage and generates weights based on
+the term's importance. An advantaged of Dai and Callan's approach is that the
+machine learning models are used offline, when the index is built. Processing a
+query only requires index look-ups, which are efficient compared to using machine
+learning models. A disadvantage is that for a given document, the index only
+contains terms that occur in the document. If a query uses synonyms or other
+related terms that do not occur in a specific document, the system will not
+return the document, even though it may be relevant to the users information
+needs. This issue is called vocabulary mismatch.
+
+We were interested in techniques that retain the evaluation of the importance of a
+term within a sentence, but that also address vocabulary mismatch. Nogueira and Lin
+had developed a process for creating document indexes using Google's T5 network with a
+machine translation architecture. Their method is capable of terms to an index that
+are relevant to the document but that do not appear in the document. However they
+used TF-IDF style algorithms to build indexes from the output of the T5 model.
+
+##### What we Learned
+[We attempted to combine Dai & Callan's and Nogueira and Lin's techniques for building
+sparse indexes for document retrieval.](https://github.com/sirwin31/neural_info_retrieval)
+Our objective was to have a model that would
+both evaluate term importance and address vocabulary mismatch. In the end, our
+combined method was no better than either of the individual models.
+
+---
+
+### Teaching Python
+I am a mentor for a
+[FIRST Robotics Competition (FRC)](https://www.firstinspires.org/robotics/frc/what-is-first-robotics-competition)
+team and I started teaching the students Python a few years ago. I couldn't find any
+online teaching materials that precisely met our requirements, so I created
+our own course. All information is presented via Jupyter notebooks.
+
+* [Python Tutorial on Google Colab](https://colab.research.google.com/github/irs1318dev/pyclass_frc/blob/master/index.ipynb)
+* [Python Tutorial Github Repo](https://github.com/irs1318dev/pyclass_frc)
+
+The course is taught from a data-analysis perspective. We want the students to
+understand that coding skills are useful for everyone, not
+just computer science majors and software engineers.
+
+---
+
+### FRC Robot Path Viewer
+The FRC Path Viewer is a visualization tool for the FIRST Robotics Competition
+(FRC) position tracking data that is generated during competitions. You can [try
+out the viewer here.](http://pviewer.herokuapp.com) The code is availabe on
+Github at https://github.com/irwinsnet/frc_path_viewer.
+
+---
+
+### R Package for Downloading Robotics Data, firstapiR
+[FIRST](https://www.firstinspires.org/), the organization that runs our robotics
+competitions, provides detailed competition data via a web API. firstapiR is
+an R package I wrote to download and work with this data in R.
+
+* [firstapiR Github repository](https://github.com/irwinsnet/firstapiR)
+* [firstapiR Getting Started Guide](https://irwinsnet.github.io/firstapiR/Getting_Started)
+
+---
+
+### Python Analytics Application for Robotics Competitions
+FRC teams often develop their own applications for analyzing the
+performance of competitors' robots. The output from these applications is
+used to make decisions during the competition. I and other adult mentors
+assisted members of the [The Issaquah Robotics Society](https://team1318.org)
+with developing such an application.
+
+Students enter data into the application via a custom-build Android client app.
+The app sends information via HTTP to a Python web server, which stores the data
+in a PostgreSQL database. We use the Pandas and Bokeh python packages for
+analysis and visualization.
+[The Github repository is here.](https://github.com/irs1318dev/scouting2020)
+
+In hindsight, we made the application too complicated. The PostgreSQL database
+uses a complex star schema, which is difficult for high school robotics students
+(and adult mentors) to understand. We plan to simplify the system before the
+2022 competition season. We'll use fewer and flatter database tables and switch
+to a Sqlite database, which is sufficient our dataset.
+
+---
+
+## About Me
+I discovered that I enjoyed programming within a few years of purchasing my
+first computer. Later, after taking some operations research courses provided by
+the Naval Postgraduate School, I discovered I liked statistics. I'm currently
+working on combining these two passions into a career in data science.
